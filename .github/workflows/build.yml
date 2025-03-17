@@ -1,0 +1,94 @@
+name: Build and Release CursorFreeVIP
+
+on:
+  push:
+    tags:
+      - 'v*'  # 当推送带有 v 前缀的标签时触发，例如 v1.0.0
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux_x64
+            asset_name: CursorFreeVIP_VERSION_linux_x64
+          - os: macos-latest
+            platform: mac
+            asset_name: CursorFreeVIP_VERSION_mac
+          - os: windows-latest
+            platform: windows
+            asset_name: CursorFreeVIP_VERSION_windows.exe
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+
+      - name: 设置 Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          # 如果你有 requirements.txt 文件，取消下面这行的注释
+          # pip install -r requirements.txt
+
+      - name: 获取版本号
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+        shell: bash
+
+      - name: 替换版本号
+        run: |
+          ASSET_NAME="${{ matrix.asset_name }}"
+          ASSET_NAME="${ASSET_NAME/VERSION/${{ env.VERSION }}}"
+          echo "FINAL_ASSET_NAME=$ASSET_NAME" >> $GITHUB_ENV
+        shell: bash
+
+      - name: 构建 Windows 可执行文件
+        if: matrix.os == 'windows-latest'
+        run: pyinstaller --onefile --name "${{ env.FINAL_ASSET_NAME }}" main.py
+
+      - name: 构建 macOS 可执行文件
+        if: matrix.os == 'macos-latest'
+        run: pyinstaller --onefile --name "${{ env.FINAL_ASSET_NAME }}" main.py
+
+      - name: 构建 Linux 可执行文件
+        if: matrix.os == 'ubuntu-latest'
+        run: pyinstaller --onefile --name "${{ env.FINAL_ASSET_NAME }}" main.py
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.FINAL_ASSET_NAME }}
+          path: dist/${{ env.FINAL_ASSET_NAME }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+
+      - name: 获取版本号
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+        shell: bash
+
+      - name: 下载所有构建产物
+        uses: actions/download-artifact@v3
+        with:
+          path: ./artifacts
+
+      - name: 创建 Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: CursorFreeVIP v${{ env.VERSION }}
+          draft: false
+          prerelease: false
+          files: ./artifacts/**/* 
