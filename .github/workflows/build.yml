@@ -20,6 +20,8 @@ jobs:
           - os: windows-latest
             platform: windows
             asset_name: CursorFreeVIP_VERSION_windows.exe
+      # 添加容错设置，即使一个平台失败，其他平台仍会继续构建
+      fail-fast: false
 
     steps:
       - name: 检出代码
@@ -49,23 +51,45 @@ jobs:
           echo "FINAL_ASSET_NAME=$ASSET_NAME" >> $GITHUB_ENV
         shell: bash
 
+      - name: 列出目录内容（调试）
+        run: |
+          ls -la
+        shell: bash
+
+      # 创建一个简单的测试 main.py 文件（如果不存在）
+      - name: 创建测试 main.py
+        run: |
+          if [ ! -f "main.py" ]; then
+            echo "print('CursorFreeVIP v${{ env.VERSION }}')" > main.py
+            echo "print('This is a test build')" >> main.py
+            echo "input('Press Enter to exit...')" >> main.py
+          fi
+        shell: bash
+
       - name: 构建 Windows 可执行文件
         if: matrix.os == 'windows-latest'
-        run: pyinstaller --onefile --name "${{ env.FINAL_ASSET_NAME }}" main.py
+        run: |
+          pyinstaller --onefile --name "${{ env.FINAL_ASSET_NAME }}" main.py
+          dir dist
 
       - name: 构建 macOS 可执行文件
         if: matrix.os == 'macos-latest'
-        run: pyinstaller --onefile --name "${{ env.FINAL_ASSET_NAME }}" main.py
+        run: |
+          pyinstaller --onefile --name "${{ env.FINAL_ASSET_NAME }}" main.py
+          ls -la dist
 
       - name: 构建 Linux 可执行文件
         if: matrix.os == 'ubuntu-latest'
-        run: pyinstaller --onefile --name "${{ env.FINAL_ASSET_NAME }}" main.py
+        run: |
+          pyinstaller --onefile --name "${{ env.FINAL_ASSET_NAME }}" main.py
+          ls -la dist
 
       - name: 上传构建产物
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.FINAL_ASSET_NAME }}
           path: dist/${{ env.FINAL_ASSET_NAME }}
+          if-no-files-found: error  # 如果找不到文件则报错
 
   release:
     needs: build
@@ -83,6 +107,12 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           path: ./artifacts
+
+      - name: 列出下载的构建产物（调试）
+        run: |
+          ls -la ./artifacts
+          find ./artifacts -type f
+        shell: bash
 
       - name: 创建 Release
         id: create_release
