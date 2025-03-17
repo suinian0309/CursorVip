@@ -155,7 +155,7 @@ max_timeout = 160
 
 * This tool is only for learning and research purposes <br>此工具仅供学习和研究使用<br>
 
-* Please comply with the relevant software usage terms when using this tool <br>使用本工具时请遵守相关软件使用条款
+* Please comply with the relevant software usage terms when using this tool <br>使用本工具请遵守相关软件使用条款
 
 ## 🚨 Common Issues | 常见问题
 
