@@ -1,179 +1,151 @@
-# ➤ CursorVIP
+# 🚀 Cursor VIP 授权工具
 
 <div align="center">
 <p align="center">
   <img src="./images/logo.png" alt="Cursor Pro Logo" width="200" style="border-radius: 6px;"/>
 </p>
 
-<p align="center">
-  <a href="https://github.com/suinian0309/CursorVip/releases/latest">
-<h4>Support Latest 0.47.x Version | 支持最新 0.47.x 版本</h4>
-
-This is a tool to automatically register, support Windows and macOS systems, complete Auth verification, and reset
-Cursor's configuration.
-
-这是一个自动化工具，自动注册，支持 Windows 和 macOS 系统，完成 Auth 验证，重置 Cursor 的配置。
+<h3>让你的 Cursor 编辑器畅享 VIP 体验</h3>
+<h4>完美支持最新 0.47.x 版本</h4>
 
 <p align="center">
   <img src="./images/new_2025-02-27_10-42-44.png" alt="new" width="400" style="border-radius: 6px;"/><br>
 </p>
-
-##### If you don't have Google Chrome, you can download it from [here](https://www.google.com/intl/en_pk/chrome/)
-
-##### 如果没有 Google Chrome，可以从[这里](https://www.google.com/intl/en_pk/chrome/)下载
-
 </div>
 
-## 🔄 Change Log | 更新日志
+## 📖 简介
 
-[Watch Change Log | 查看更新日志](CHANGELOG.md)
+这是一款强大的自动化工具，能帮你轻松搞定 Cursor 编辑器的会员认证。它可以自动注册、完成身份验证，并重置 Cursor 的配置信息，让你享受到完整的功能体验。
 
-## ✨ Features | 功能特点
+## ✨ 主要功能
 
-* 🌟 Google OAuth Authentication with Lifetime Access<br>使用 Google OAuth 认证（终身访问）<br>
+- 🌟 **谷歌账号认证**：使用 Google OAuth 实现终身授权
+- ⭐ **GitHub 账号认证**：通过 GitHub OAuth 获得永久访问权限
+- 🔄 **自动注册**：全自动完成 Cursor 会员注册流程
+- 🖥️ **多系统支持**：完美兼容 Windows 和 macOS 系统
+- 🔐 **身份验证**：自动完成 Auth 验证过程
+- 🧹 **配置重置**：一键重置 Cursor 的配置信息
+- 🌍 **多语言界面**：支持英文、简体中文、繁体中文和越南语
 
-* ⭐ GitHub OAuth Authentication with Lifetime Access<br>使用 GitHub OAuth 认证（终身访问）<br>
+## 💻 系统兼容性
 
-* Automatically register Cursor membership<br>自动注册 Cursor 会员<br>
+| 操作系统 | 架构 | 支持状态 |
+|:-------:|:-----:|:-----:|
+| Windows | x64 | ✅ 支持 |
+| Windows | x86 | ✅ 支持 |
+| macOS | Intel 芯片 | ✅ 支持 |
+| macOS | Apple 芯片 | ✅ 支持 |
+| Linux | x64 | ✅ 支持 |
+| Linux | x86 | ✅ 支持 |
+| Linux | ARM64 | ✅ 支持 |
 
-* Support Windows and macOS systems<br>支持 Windows 和 macOS 系统<br>
+## 🚀 快速开始
 
-* Complete Auth verification<br>完成 Auth 验证<br>
+> ⚠️ **注意**：运行前请确保已关闭 Cursor 编辑器，并使用管理员权限执行脚本
 
-* Reset Cursor's configuration<br>重置 Cursor 的配置<br>
+### Windows 用户
 
-* Multi-language support (English, 简体中文, 繁體中文, Vietnamese)<br>多语言支持（英文、简体中文、繁體中文、越南语）<br>
-
-## 💻 System Support | 系统支持
-
-| Windows |  x64  | ✅ | macOS |     Intel     | ✅ |
-|:-------:|:-----:|:-:|:-----:|:-------------:|:-:|
-| Windows |  x86  | ✅ | macOS | Apple Silicon | ✅ |
-|  Linux  |  x64  | ✅ | Linux |      x86      | ✅ |
-|  Linux  | ARM64 | ✅ | Linux |     ARM64     | ✅ |
-
-## 👀 How to use | 如何使用
-
-<details open>
-<summary><b>⭐ Auto Run Script | 脚本自动化运行</b></summary>
-
-**Linux/macOS**
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/suinian0309/CursorVip/main/scripts/install.sh -o install.sh && chmod +x install.sh && ./install.sh
-```
-
-**Windows**
+只需复制下面的命令到 PowerShell 中执行：
 
 ```powershell
 irm https://raw.githubusercontent.com/suinian0309/CursorVip/main/scripts/install.ps1 | iex
 ```
 
-</details>
+### macOS/Linux 用户
 
-<details>
-<summary><b>⭐ Manual Reset Machine | 手动运行重置机器</b></summary>
-
-**Linux/macOS**
+在终端中执行以下命令：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/suinian0309/CursorVip/main/scripts/reset.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/suinian0309/CursorVip/main/scripts/install.sh -o install.sh && chmod +x install.sh && ./install.sh
 ```
 
-**Windows**
+### 手动重置机器标识
 
+如果需要重置机器标识，可以使用以下命令：
+
+**Windows**:
 ```powershell
 irm https://raw.githubusercontent.com/suinian0309/CursorVip/main/scripts/reset.ps1 | iex
 ```
 
-</details>
+**macOS/Linux**:
+```bash
+curl -fsSL https://raw.githubusercontent.com/suinian0309/CursorVip/main/scripts/reset.sh | sudo bash
+```
 
-2. If you want to stop the script, please press Ctrl+C<br>要停止脚本，请按 Ctrl+C
+> 💡 **小贴士**：如果想停止脚本运行，按下 Ctrl+C 即可
 
-## ❗ Note | 注意事项
+## ⚙️ 配置说明
 
-📝 Config | 文件配置
-`Win / Macos / Linux Path | 路径 [Documents/.cursor-free-vip/config.ini]`
+配置文件位置：`Documents/.cursor-free-vip/config.ini`
+
 <details>
-<summary><b>⭐ Config | 文件配置</b></summary>
+<summary><b>👉 点击查看详细配置选项</b></summary>
 
 ```
 [Chrome]
-# Default Google Chrome Path | 默认Google Chrome 浏览器路径
+# 谷歌浏览器路径
 chromepath = C:\Program Files\Google/Chrome/Application/chrome.exe
 
 [Turnstile]
-# Handle Tuenstile Wait Time | 等待人机验证时间
+# 人机验证等待时间
 handle_turnstile_time = 2
-# Handle Tuenstile Wait Random Time (must merge 1-3 or 1,3) | 等待人机验证随机时间（必须是 1-3 或者 1,3 这样的组合）
+# 人机验证随机等待时间（格式：1-3 或 1,3）
 handle_turnstile_random_time = 1-3
 
 [OSPaths]
-# Storage Path | 存储路径
+# 存储文件路径
 storage_path = /Users/username/Library/Application Support/Cursor/User/globalStorage/storage.json
-# SQLite Path | SQLite路径
+# SQLite数据库路径
 sqlite_path = /Users/username/Library/Application Support/Cursor/User/globalStorage/state.vscdb
-# Machine ID Path | 机器ID路径
+# 机器ID路径
 machine_id_path = /Users/username/Library/Application Support/Cursor/machineId
 
 [Timing]
-# Min Random Time | 最小随机时间
+# 最小随机时间
 min_random_time = 0.1
-# Max Random Time | 最大随机时间
+# 最大随机时间
 max_random_time = 0.8
-# Page Load Wait | 页面加载等待时间
+# 页面加载等待时间
 page_load_wait = 0.1-0.8
-# Input Wait | 输入等待时间
+# 输入等待时间
 input_wait = 0.3-0.8
-# Submit Wait | 提交等待时间
+# 提交等待时间
 submit_wait = 0.5-1.5
-# Verification Code Input | 验证码输入等待时间
+# 验证码输入等待时间
 verification_code_input = 0.1-0.3
-# Verification Success Wait | 验证成功等待时间
+# 验证成功等待时间
 verification_success_wait = 2-3
-# Verification Retry Wait | 验证重试等待时间
+# 验证重试等待时间
 verification_retry_wait = 2-3
-# Email Check Initial Wait | 邮件检查初始等待时间
+# 邮件检查初始等待时间
 email_check_initial_wait = 4-6
-# Email Refresh Wait | 邮件刷新等待时间
+# 邮件刷新等待时间
 email_refresh_wait = 2-4
-# Settings Page Load Wait | 设置页面加载等待时间
+# 设置页面加载等待时间
 settings_page_load_wait = 1-2
-# Failed Retry Time | 失败重试时间
+# 失败重试时间
 failed_retry_time = 0.5-1
-# Retry Interval | 重试间隔
+# 重试间隔
 retry_interval = 8-12
-# Max Timeout | 最大超时时间
+# 最大超时时间
 max_timeout = 160
 ```
-
 </details>
 
-* Use administrator to run the script <br>请使用管理员身份运行脚本
+## 🔍 常见问题
 
-* Confirm that Cursor is closed before running the script <br>请确保在运行脚本前已经关闭 Cursor<br>
-
-* This tool is only for learning and research purposes <br>此工具仅供学习和研究使用<br>
-
-* Please comply with the relevant software usage terms when using this tool <br>使用本工具请遵守相关软件使用条款
-
-## 🚨 Common Issues | 常见问题
-
-|                   如果遇到权限问题，请确保：                    |                   此脚本以管理员身份运行                    |
+| 问题描述 | 解决方法 |
 |:--------------------------------------------------:|:------------------------------------------------:|
-| If you encounter permission issues, please ensure: | This script is run with administrator privileges |
+| 遇到权限不足问题 | 请确保以管理员身份运行脚本 |
+| 脚本无法正常运行 | 请确保已安装谷歌浏览器，可从[这里下载](https://www.google.com/intl/en_pk/chrome/) |
+| 验证失败 | 检查网络连接，确保能正常访问谷歌或GitHub |
 
+## 📝 更新日志
 
+想了解最新版本的更新内容？[点击这里查看完整更新记录](CHANGELOG.md)
 
-## 📩 Disclaimer | 免责声明
-
-本工具仅供学习和研究使用，使用本工具所产生的任何后果由使用者自行承担。 <br>
-
-This tool is only for learning and research purposes, and any consequences arising from the use of this tool are borne
-by the user.
-
-
-## ⭐ Star History | 星星数
+## ⭐ 项目统计
 
 <div align="center">
 
@@ -181,7 +153,10 @@ by the user.
 
 </div>
 
-## 📝 License | 授权
+## ⚠️ 免责声明
 
-本项目采用 [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/) 授权。
-Please refer to the [LICENSE](LICENSE.md) file for details.
+本工具仅供学习和研究使用，请在合法范围内使用。使用本工具产生的任何后果由使用者自行承担。请尊重软件开发者的劳动成果，遵守相关软件使用条款。
+
+## 📄 许可协议
+
+本项目采用 [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/) 许可协议。详情请参阅 [LICENSE](LICENSE.md) 文件。
