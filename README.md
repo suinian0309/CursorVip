@@ -153,6 +153,15 @@ max_timeout = 160
 
 </div>
 
+## 👥 加入交流群
+
+<div align="center">
+  <p>扫描下方二维码，加入微信交流群，获取最新资讯和使用技巧</p>
+  <img src="./images/wechat_group.jpg" alt="微信交流群" width="280" style="border-radius: 8px;"/>
+  <p>👆 微信扫一扫，和开发者及其他用户一起交流 👆</p>
+  <p>二维码失效？请<a href="https://github.com/suinian0309/CursorVip/issues">提交 Issue</a> 获取最新二维码</p>
+</div>
+
 ## ⚠️ 免责声明
 
 本工具仅供学习和研究使用，请在合法范围内使用。使用本工具产生的任何后果由使用者自行承担。请尊重软件开发者的劳动成果，遵守相关软件使用条款。
