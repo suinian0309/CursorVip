@@ -2,7 +2,6 @@
 ## v1.8.00 ( Pre - Release 版本 )
 1. Fix: Totally Reset Cursor | 修复完全重置 Cursor
 
-
 ## v1.7.10 ( Pre - Release 版本 )
 1. Add: Totally Reset Cursor | 增加完全重置 Cursor
 2. Add: Multi-language Support for Totally Reset | 增加完全重置多語言支持
