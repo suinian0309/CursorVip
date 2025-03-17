@@ -65,7 +65,7 @@ Write-Host "Created by suinian0309`n" -ForegroundColor $Theme.Info
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 # Main installation function
-function Install-CursorFreeVIP {
+function Install-CursorVIP {
     Write-Styled "Start downloading Cursor Free VIP" -Color $Theme.Primary -Prefix "Download"
     
     try {
@@ -76,9 +76,9 @@ function Install-CursorFreeVIP {
         Write-Styled "Found latest version: $version" -Color $Theme.Success -Prefix "Version"
         
         # Find corresponding resources
-        $asset = $releaseInfo.Assets | Where-Object { $_.name -eq "CursorFreeVIP_${version}_windows.exe" }
+        $asset = $releaseInfo.Assets | Where-Object { $_.name -eq "CursorVIP_${version}_windows.exe" }
         if (!$asset) {
-            Write-Styled "File not found: CursorFreeVIP_${version}_windows.exe" -Color $Theme.Error -Prefix "Error"
+            Write-Styled "File not found: CursorVIP_${version}_windows.exe" -Color $Theme.Error -Prefix "Error"
             Write-Styled "Available files:" -Color $Theme.Warning -Prefix "Info"
             $releaseInfo.Assets | ForEach-Object {
                 Write-Styled "- $($_.name)" -Color $Theme.Info
@@ -88,7 +88,7 @@ function Install-CursorFreeVIP {
         
         # Check if Downloads folder already exists for the corresponding version
         $DownloadsPath = [Environment]::GetFolderPath("UserProfile") + "\Downloads"
-        $downloadPath = Join-Path $DownloadsPath "CursorFreeVIP_${version}_windows.exe"
+        $downloadPath = Join-Path $DownloadsPath "CursorVIP_${version}_windows.exe"
         
         if (Test-Path $downloadPath) {
             Write-Styled "Found existing installation file" -Color $Theme.Success -Prefix "Found"
@@ -203,7 +203,7 @@ function Install-CursorFreeVIP {
 
 # Execute installation
 try {
-    Install-CursorFreeVIP
+    Install-CursorVIP
 }
 catch {
     Write-Styled "Download failed" -Color $Theme.Error -Prefix "Error"

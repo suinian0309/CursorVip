@@ -260,7 +260,7 @@ def check_latest_version():
         # Get latest version from GitHub API with timeout and proper headers
         headers = {
             'Accept': 'application/vnd.github.v3+json',
-            'User-Agent': 'CursorFreeVIP-Updater'
+            'User-Agent': 'CursorVIP-Updater'
         }
         response = requests.get(
             "https://api.github.com/repos/suinian0309/CursorVip/releases/latest",        
