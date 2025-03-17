@@ -1,4 +1,4 @@
-# ➤ Cursor Free VIP
+# ➤ CursorVIP
 
 <div align="center">
 <p align="center">
@@ -7,12 +7,6 @@
 
 <p align="center">
   <a href="https://github.com/suinian0309/CursorVip/releases/latest">
-[![Release](https://img.shields.io/github/v/release/suinian0309/CursorVip?style=flat-square&logo=github&color=blue)](https://github.com/suinian0309/CursorVip/releases/latest)
-[![License: CC BY-NC-ND 4.0](https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-nd/4.0/)
-[![Stars](https://img.shields.io/github/stars/suinian0309/CursorVip?style=flat-square&logo=github)](https://github.com/suinian0309/CursorVip/stargazers)
-[![Download](https://img.shields.io/github/downloads/suinian0309/CursorVip/total?style=flat-square&logo=github&color=52c41a)](https://github.com/suinian0309/CursorVip/releases/latest)
-
-</p>
 <h4>Support Latest 0.47.x Version | 支持最新 0.47.x 版本</h4>
 
 This is a tool to automatically register, support Windows and macOS systems, complete Auth verification, and reset
@@ -169,15 +163,7 @@ max_timeout = 160
 |:--------------------------------------------------:|:------------------------------------------------:|
 | If you encounter permission issues, please ensure: | This script is run with administrator privileges |
 
-## 🤩 Contribution | 贡献
 
-欢迎提交 Issue 和 Pull Request！
-
-
-<a href="https://github.com/suinian0309/CursorVip/graphs/contributors">  
-  <img src="https://contrib.rocks/image?repo=suinian0309/CursorVip" />
-</a>
-<br /><br />
 
 ## 📩 Disclaimer | 免责声明
 
@@ -186,20 +172,6 @@ max_timeout = 160
 This tool is only for learning and research purposes, and any consequences arising from the use of this tool are borne
 by the user.
 
-## 💰 Buy Me a Coffee | 请我喝杯咖啡
-
-<div align="center">
-  <table>
-    <tr>
-      <td>
-        <img src="./images/provi-code.jpg" alt="buy_me_a_coffee" width="280"/><br>
-      </td>
-      <td>
-        <img src="./images/paypal.png" alt="buy_me_a_coffee" width="280"/><br>
-      </td>
-    </tr>
-  </table>
-</div>
 
 ## ⭐ Star History | 星星数
 

@@ -1,4 +1,7 @@
 # Change Log
+## v1.8.10 ( Pre - Release 版本 )
+1. Add: Totally Reset Cursor | 修复完全重置 Cursor
+
 
 ## v1.7.10 ( Pre - Release 版本 )
 1. Add: Totally Reset Cursor | 增加完全重置 Cursor
