@@ -26,9 +26,9 @@ CURSOR_LOGO = f"""
 {Fore.YELLOW}
                 Pro Version Activator v{version}
 {Fore.GREEN}
-                Author: Pin Studios | yeongpin
+                Author: Pin Studios | 科技源代码
 
-      Github: https://github.com/yeongpin/cursor-free-vip
+      Github: https://github.com/suinian0309/CursorVip
 {Fore.RED}
         Press 5 to change language | 按下 5 键切换语言
 {Style.RESET_ALL}

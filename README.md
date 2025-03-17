@@ -6,11 +6,11 @@
 </p>
 
 <p align="center">
-
-[![Release](https://img.shields.io/github/v/release/yeongpin/cursor-free-vip?style=flat-square&logo=github&color=blue)](https://github.com/yeongpin/cursor-free-vip/releases/latest)
+  <a href="https://github.com/suinian0309/CursorVip/releases/latest">
+[![Release](https://img.shields.io/github/v/release/suinian0309/CursorVip?style=flat-square&logo=github&color=blue)](https://github.com/suinian0309/CursorVip/releases/latest)
 [![License: CC BY-NC-ND 4.0](https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-nd/4.0/)
-[![Stars](https://img.shields.io/github/stars/yeongpin/cursor-free-vip?style=flat-square&logo=github)](https://github.com/yeongpin/cursor-free-vip/stargazers)
-[![Download](https://img.shields.io/github/downloads/yeongpin/cursor-free-vip/total?style=flat-square&logo=github&color=52c41a)](https://github.com/yeongpin/cursor-free-vip/releases/latest)
+[![Stars](https://img.shields.io/github/stars/suinian0309/CursorVip?style=flat-square&logo=github)](https://github.com/suinian0309/CursorVip/stargazers)
+[![Download](https://img.shields.io/github/downloads/suinian0309/CursorVip/total?style=flat-square&logo=github&color=52c41a)](https://github.com/suinian0309/CursorVip/releases/latest)
 
 </p>
 <h4>Support Latest 0.47.x Version | 支持最新 0.47.x 版本</h4>
@@ -66,13 +66,13 @@ Cursor's configuration.
 **Linux/macOS**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/yeongpin/cursor-free-vip/main/scripts/install.sh -o install.sh && chmod +x install.sh && ./install.sh
+curl -fsSL https://raw.githubusercontent.com/suinian0309/CursorVip/main/scripts/install.sh -o install.sh && chmod +x install.sh && ./install.sh
 ```
 
 **Windows**
 
 ```powershell
-irm https://raw.githubusercontent.com/yeongpin/cursor-free-vip/main/scripts/install.ps1 | iex
+irm https://raw.githubusercontent.com/suinian0309/CursorVip/main/scripts/install.ps1 | iex
 ```
 
 </details>
@@ -83,13 +83,13 @@ irm https://raw.githubusercontent.com/yeongpin/cursor-free-vip/main/scripts/inst
 **Linux/macOS**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/yeongpin/cursor-free-vip/main/scripts/reset.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/suinian0309/CursorVip/main/scripts/reset.sh | sudo bash
 ```
 
 **Windows**
 
 ```powershell
-irm https://raw.githubusercontent.com/yeongpin/cursor-free-vip/main/scripts/reset.ps1 | iex
+irm https://raw.githubusercontent.com/suinian0309/CursorVip/main/scripts/reset.ps1 | iex
 ```
 
 </details>
@@ -174,8 +174,8 @@ max_timeout = 160
 歡迎提交 Issue 和 Pull Request！
 
 
-<a href="https://github.com/yeongpin/cursor-free-vip/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=yeongpin/cursor-free-vip" />
+<a href="https://github.com/suinian0309/CursorVip/graphs/contributors">  
+  <img src="https://contrib.rocks/image?repo=suinian0309/CursorVip" />
 </a>
 <br /><br />
 
@@ -205,7 +205,7 @@ by the user.
 
 <div align="center">
 
-[![Star History Chart](https://api.star-history.com/svg?repos=yeongpin/cursor-free-vip&type=Date)](https://star-history.com/#yeongpin/cursor-free-vip&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=suinian0309/CursorVip&type=Date)](https://star-history.com/#suinian0309/CursorVip&Date)
 
 </div>
 

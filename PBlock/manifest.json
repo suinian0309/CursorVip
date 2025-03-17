@@ -2,8 +2,8 @@
   "name": "PBlock",
   "version": "0.1",
   "manifest_version": 3,
-  "author": "yeongpin",
-  "url": "https://github.com/yeongpin/PBlock",
+  "author": "suinian0309",
+  "url": "https://github.com/suinian0309/CursorVip",
   "description": "Just a simple blocker.",
   "action": {
     "default_icon": "enabled48.png"
