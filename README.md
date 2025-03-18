@@ -5,7 +5,7 @@
   <img src="./images/logo.png" alt="Cursor Pro Logo" width="200" style="border-radius: 6px;"/>
 </p>
 
-<h3>让你的 Cursor 编辑器畅享 VIP 体验</h3>
+<h3>让你的 Cursor 畅享 VIP 体验</h3>
 <h4>完美支持最新 0.47.x 版本</h4>
 
 <p align="center">
