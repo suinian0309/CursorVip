@@ -77,7 +77,7 @@ curl -fsSL https://raw.githubusercontent.com/suinian0309/CursorVip/main/scripts/
 
 ## ⚙️ 配置说明
 
-配置文件位置：`Documents/.cursor-free-vip/config.ini`
+配置文件位置：`Documents/.cursorvip/config.ini`
 
 <details>
 <summary><b>👉 点击查看详细配置选项</b></summary>

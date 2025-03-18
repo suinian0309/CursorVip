@@ -219,7 +219,8 @@ def print_menu():
     print(f"{Fore.YELLOW}{'─' * 40}{Style.RESET_ALL}")
     print(f"{Fore.GREEN}0{Style.RESET_ALL}. {EMOJI['ERROR']} {translator.get('menu.exit')}")
     print(f"{Fore.GREEN}1{Style.RESET_ALL}. {EMOJI['RESET']} {translator.get('menu.reset')}")
-    print(f"{Fore.GREEN}2{Style.RESET_ALL}. {EMOJI['SUCCESS']} {translator.get('menu.register')}")
+    # 暂时屏蔽选项2
+    # print(f"{Fore.GREEN}2{Style.RESET_ALL}. {EMOJI['SUCCESS']} {translator.get('menu.register')}")
     print(f"{Fore.GREEN}3{Style.RESET_ALL}. 🌟 {translator.get('menu.register_google')}")
     print(f"{Fore.YELLOW}   ┗━━ 🔥 {translator.get('menu.lifetime_access_enabled')} 🔥{Style.RESET_ALL}")
     print(f"{Fore.GREEN}4{Style.RESET_ALL}. ⭐ {translator.get('menu.register_github')}")
@@ -400,8 +401,8 @@ def main():
                 reset_machine_manual.run(translator)
                 print_menu()
             elif choice == "2":
-                import cursor_register
-                cursor_register.main(translator)
+                # 选项2暂时被屏蔽，显示提示信息
+                print(f"{Fore.YELLOW}{EMOJI['INFO']} 此功能暂时不可用{Style.RESET_ALL}")
                 print_menu()
             elif choice == "3":
                 import cursor_register_google
