@@ -14,7 +14,8 @@
         "press_enter": "Nhấn Enter để Thoát",
         "disable_auto_update": "Tắt tự động cập nhật Cursor",
         "lifetime_access_enabled": "ĐÃ BẬT TRUY CẬP TRỌN ĐỜI",
-        "totally_reset": "Đặt lại hoàn toàn Cursor"
+        "totally_reset": "Đặt lại hoàn toàn Cursor",
+        "join_group": "Tham gia nhóm WeChat"
     },
     "languages": {
         "en": "English",
@@ -88,7 +89,6 @@
         "check_version_failed": "Kiểm Tra Phiên Bản Thất Bại: {error}",
         "stack_trace": "Dấu Vết Ngăn Xếp",
         "version_too_low": "Phiên Bản Cursor Quá Thấp: {version} < 0.45.0"
-        
     },
     "register": {
         "title": "Công Cụ Đăng Ký Cursor",
@@ -371,5 +371,15 @@
         "electron_localstorage_files_removed": "Đã xóa các tệp Electron localStorage",
         "electron_localstorage_files_removal_error": "Lỗi khi xóa các tệp Electron localStorage: {error}",
         "removing_electron_localstorage_files_completed": "Đã hoàn tất việc xóa các tệp Electron localStorage"
+    },
+    "join_group": {
+        "title": "Tham gia nhóm WeChat",
+        "scan_tip": "Vui lòng quét mã QR bằng WeChat để tham gia nhóm",
+        "group_description": "Nhận tin tức và mẹo mới nhất trong nhóm, giao tiếp với nhà phát triển và người dùng khác",
+        "press_any_key": "Nhấn phím bất kỳ để trở về menu chính...",
+        "opening_browser": "Đang mở trình duyệt để hiển thị mã QR...",
+        "browser_opened": "Đã mở trình duyệt, vui lòng quét mã QR trong trang web đã mở",
+        "browser_error": "Không thể mở trình duyệt",
+        "manual_link": "Nếu trình duyệt không mở đúng cách, vui lòng sao chép thủ công liên kết sau để truy cập:"
     }
 }

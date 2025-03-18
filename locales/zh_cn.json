@@ -16,7 +16,8 @@
         "press_enter": "按回车键退出",
         "disable_auto_update": "禁用 Cursor 自动更新",
         "lifetime_access_enabled": "永久订阅",
-        "totally_reset": "完全重置 Cursor"
+        "totally_reset": "完全重置 Cursor",
+        "join_group": "不会用？遇到问题？想和大神面对面？请加入交流群"
     },
     "languages": {
         "en": "English",
@@ -369,5 +370,15 @@
         "electron_localstorage_files_removed": "Electron localStorage 文件已移除",
         "electron_localstorage_files_removal_error": "移除 Electron localStorage 文件时出错：{error}",
         "removing_electron_localstorage_files_completed": "Electron localStorage 文件移除完成"
+    },
+    "join_group": {
+        "title": "微信交流群",
+        "scan_tip": "请使用微信扫描二维码加入交流群",
+        "group_description": "在交流群中获取最新资讯和使用技巧，与开发者及其他用户交流",
+        "press_any_key": "按任意键返回主菜单...",
+        "opening_browser": "正在打开浏览器显示二维码...",
+        "browser_opened": "浏览器已打开，请在打开的网页中扫描二维码",
+        "browser_error": "打开浏览器失败",
+        "manual_link": "若浏览器未能正常打开，请手动复制以下链接在浏览器中访问："
     }
 } 

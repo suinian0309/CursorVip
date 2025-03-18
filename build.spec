@@ -26,6 +26,7 @@ a = Analysis(
         ('turnstilePatch', 'turnstilePatch'),
         ('PBlock', 'PBlock'),
         ('locales', 'locales'),
+        ('images', 'images'),
         ('cursor_auth.py', '.'),
         ('reset_machine_manual.py', '.'),
         ('cursor_register.py', '.'),

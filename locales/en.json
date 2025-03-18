@@ -16,7 +16,8 @@
         "press_enter": "Press Enter to Exit",
         "disable_auto_update": "Disable Cursor Auto-Update",
         "lifetime_access_enabled": "LIFETIME ACCESS ENABLED",
-        "totally_reset": "Totally Reset Cursor"
+        "totally_reset": "Totally Reset Cursor",
+        "join_group": "Join WeChat Group"
     },
     "languages": {
         "en": "English",
@@ -373,5 +374,15 @@
         "electron_localstorage_files_removed": "Electron localStorage files removed",
         "electron_localstorage_files_removal_error": "Error removing Electron localStorage files: {error}",
         "removing_electron_localstorage_files_completed": "Electron localStorage files removal completed"
+    },
+    "join_group": {
+        "title": "Join WeChat Group",
+        "scan_tip": "Please scan the QR code with WeChat to join the group",
+        "group_description": "Get the latest news and tips in the group, communicate with developers and other users",
+        "press_any_key": "Press any key to return to the main menu...",
+        "opening_browser": "Opening browser to display QR code...",
+        "browser_opened": "Browser opened, please scan the QR code in the opened webpage",
+        "browser_error": "Failed to open browser",
+        "manual_link": "If the browser did not open properly, please manually copy the following link to visit:"
     }
 }
