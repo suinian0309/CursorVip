@@ -75,6 +75,69 @@ class CursorAuth:
             print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('auth.db_connection_error', error=str(e))}{Style.RESET_ALL}")
             return
 
+    def get_auth(self):
+        """获取当前存储的认证信息"""
+        conn = None
+        try:
+            if not os.path.exists(self.db_path):
+                print(f"{Fore.YELLOW}{EMOJI['WARN']} {self.translator.get('auth.db_not_found', path=self.db_path) if self.translator else f'Database file not found: {self.db_path}'}{Style.RESET_ALL}")
+                return None
+                
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            
+            # 添加超时和优化设置
+            conn.execute("PRAGMA busy_timeout = 5000")
+            conn.execute("PRAGMA journal_mode = WAL")
+            conn.execute("PRAGMA synchronous = NORMAL")
+            
+            # 检查ItemTable表是否存在
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='ItemTable'")
+            if not cursor.fetchone():
+                print(f"{Fore.YELLOW}{EMOJI['WARN']} {self.translator.get('auth.table_not_exists') if self.translator else 'ItemTable does not exist in database'}{Style.RESET_ALL}")
+                return None
+                
+            # 获取认证信息
+            auth_info = {}
+            
+            # 获取email
+            cursor.execute("SELECT value FROM ItemTable WHERE key = 'cursorAuth/cachedEmail'")
+            result = cursor.fetchone()
+            if result:
+                auth_info['email'] = result[0]
+                
+            # 获取access token
+            cursor.execute("SELECT value FROM ItemTable WHERE key = 'cursorAuth/accessToken'")
+            result = cursor.fetchone()
+            if result:
+                auth_info['access_token'] = result[0]
+                
+            # 获取refresh token
+            cursor.execute("SELECT value FROM ItemTable WHERE key = 'cursorAuth/refreshToken'")
+            result = cursor.fetchone()
+            if result:
+                auth_info['refresh_token'] = result[0]
+                
+            if auth_info:
+                print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {self.translator.get('auth.info_retrieved') if self.translator else 'Authentication information retrieved successfully'}{Style.RESET_ALL}")
+                if 'email' in auth_info:
+                    print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('auth.current_email') if self.translator else 'Current email'}: {auth_info['email']}{Style.RESET_ALL}")
+            else:
+                print(f"{Fore.YELLOW}{EMOJI['WARN']} {self.translator.get('auth.no_auth_info') if self.translator else 'No authentication information found'}{Style.RESET_ALL}")
+                
+            return auth_info
+            
+        except sqlite3.Error as e:
+            print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('auth.db_error', error=str(e)) if self.translator else f'Database error: {str(e)}'}{Style.RESET_ALL}")
+            return None
+        except Exception as e:
+            print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('auth.general_error', error=str(e)) if self.translator else f'Error retrieving authentication information: {str(e)}'}{Style.RESET_ALL}")
+            return None
+        finally:
+            if conn:
+                conn.close()
+                print(f"{Fore.CYAN}{EMOJI['DB']} {self.translator.get('auth.db_connection_closed') if self.translator else 'Database connection closed'}{Style.RESET_ALL}")
+
     def update_auth(self, email=None, access_token=None, refresh_token=None):
         conn = None
         try:
@@ -137,10 +200,10 @@ class CursorAuth:
                             UPDATE ItemTable SET value = ?
                             WHERE key = ?
                         """, (value, key))
-                    print(f"{EMOJI['INFO']} {Fore.CYAN} {self.translator.get('auth.updating_pair')} {key.split('/')[-1]}...{Style.RESET_ALL}")
+                    print(f"{EMOJI['INFO']} {Fore.CYAN} {self.translator.get('auth.updating_pair') if self.translator else 'Updating'} {key.split('/')[-1]}...{Style.RESET_ALL}")
                 
                 cursor.execute("COMMIT")
-                print(f"{EMOJI['SUCCESS']} {Fore.GREEN}{self.translator.get('auth.database_updated_successfully')}{Style.RESET_ALL}")
+                print(f"{EMOJI['SUCCESS']} {Fore.GREEN}{self.translator.get('auth.database_updated_successfully') if self.translator else 'Database updated successfully'}{Style.RESET_ALL}")
                 return True
                 
             except Exception as e:
@@ -148,12 +211,12 @@ class CursorAuth:
                 raise e
 
         except sqlite3.Error as e:
-            print(f"\n{EMOJI['ERROR']} {Fore.RED} {self.translator.get('auth.database_error', error=str(e))}{Style.RESET_ALL}")
+            print(f"\n{EMOJI['ERROR']} {Fore.RED} {self.translator.get('auth.database_error', error=str(e)) if self.translator else f'Database error: {str(e)}'}{Style.RESET_ALL}")
             return False
         except Exception as e:
-            print(f"\n{EMOJI['ERROR']} {Fore.RED} {self.translator.get('auth.an_error_occurred', error=str(e))}{Style.RESET_ALL}")
+            print(f"\n{EMOJI['ERROR']} {Fore.RED} {self.translator.get('auth.an_error_occurred', error=str(e)) if self.translator else f'An error occurred: {str(e)}'}{Style.RESET_ALL}")
             return False
         finally:
             if conn:
                 conn.close()
-                print(f"{EMOJI['DB']} {Fore.CYAN} {self.translator.get('auth.database_connection_closed')}{Style.RESET_ALL}")
+                print(f"{EMOJI['DB']} {Fore.CYAN} {self.translator.get('auth.database_connection_closed') if self.translator else 'Database connection closed'}{Style.RESET_ALL}")

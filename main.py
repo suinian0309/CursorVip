@@ -33,7 +33,9 @@ EMOJI = {
     "LANG": "🌐",
     "UPDATE": "🔄",
     "ADMIN": "🔐",
-    "GROUP": "🤖"  # 新增交流群的emoji
+    "GROUP": "🤖",
+    "DELETE": "🗑️",
+    "LIFETIME": "🔥",
 }
 
 # Function to check if running as frozen executable
@@ -219,8 +221,7 @@ def print_menu():
     print(f"{Fore.YELLOW}{'─' * 40}{Style.RESET_ALL}")
     print(f"{Fore.GREEN}0{Style.RESET_ALL}. {EMOJI['ERROR']} {translator.get('menu.exit')}")
     print(f"{Fore.GREEN}1{Style.RESET_ALL}. {EMOJI['RESET']} {translator.get('menu.reset')}")
-    # 暂时屏蔽选项2
-    # print(f"{Fore.GREEN}2{Style.RESET_ALL}. {EMOJI['SUCCESS']} {translator.get('menu.register')}")
+    print(f"{Fore.GREEN}2{Style.RESET_ALL}. {EMOJI['LIFETIME']} {translator.get('menu.delete_and_register')}")
     print(f"{Fore.GREEN}3{Style.RESET_ALL}. 🌟 {translator.get('menu.register_google')}")
     print(f"{Fore.YELLOW}   ┗━━ 🔥 {translator.get('menu.lifetime_access_enabled')} 🔥{Style.RESET_ALL}")
     print(f"{Fore.GREEN}4{Style.RESET_ALL}. ⭐ {translator.get('menu.register_github')}")
@@ -231,6 +232,7 @@ def print_menu():
     print(f"{Fore.GREEN}8{Style.RESET_ALL}. {EMOJI['UPDATE']} {translator.get('menu.disable_auto_update')}")
     print(f"{Fore.GREEN}9{Style.RESET_ALL}. {EMOJI['RESET']} {translator.get('menu.totally_reset')}")
     print(f"{Fore.GREEN}10{Style.RESET_ALL}. {EMOJI['GROUP']} {translator.get('menu.join_group')}")
+    print(f"{Fore.GREEN}11{Style.RESET_ALL}. {EMOJI['DELETE']} {translator.get('menu.delete_account_online')}")
     print(f"{Fore.YELLOW}{'─' * 40}{Style.RESET_ALL}")
 
 def select_language():
@@ -390,7 +392,7 @@ def main():
     
     while True:
         try:
-            choice = input(f"\n{EMOJI['ARROW']} {Fore.CYAN}{translator.get('menu.input_choice', choices='0-10')}: {Style.RESET_ALL}")
+            choice = input(f"\n{EMOJI['ARROW']} {Fore.CYAN}{translator.get('menu.input_choice', choices='0-11')}: {Style.RESET_ALL}")
 
             if choice == "0":
                 print(f"\n{Fore.YELLOW}{EMOJI['INFO']} {translator.get('menu.exit')}...{Style.RESET_ALL}")
@@ -401,8 +403,8 @@ def main():
                 reset_machine_manual.run(translator)
                 print_menu()
             elif choice == "2":
-                # 选项2暂时被屏蔽，显示提示信息
-                print(f"{Fore.YELLOW}{EMOJI['INFO']} 此功能暂时不可用{Style.RESET_ALL}")
+                import delete_account
+                delete_account.run(translator)
                 print_menu()
             elif choice == "3":
                 import cursor_register_google
@@ -435,6 +437,10 @@ def main():
             elif choice == "10":
                 import show_wechat_group
                 show_wechat_group.show(translator)
+                print_menu()
+            elif choice == "11":
+                import cursor_delete_account
+                cursor_delete_account.run(translator)
                 print_menu()
             else:
                 print(f"{Fore.RED}{EMOJI['ERROR']} {translator.get('menu.invalid_choice')}{Style.RESET_ALL}")
