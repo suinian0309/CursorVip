@@ -159,12 +159,15 @@ class CursorOnlineAccountDeleter:
             # 先尝试通过API直接删除
             api_delete_success = self._delete_account_api()
             
-            # 如果API删除成功，直接返回
+            # 如果API删除成功，验证删除结果
             if api_delete_success:
-                print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {self.translator.get('delete_account_online.api_delete_success')}{Style.RESET_ALL}")
-                return True
-                
-            # 如果API删除失败，尝试通过UI删除
+                if self.verify_account_deletion():
+                    print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {self.translator.get('delete_account_online.api_delete_success')}{Style.RESET_ALL}")
+                    return True
+                else:
+                    print(f"{Fore.YELLOW}{EMOJI['WARNING']} {self.translator.get('delete_account_online.api_delete_unverified')}{Style.RESET_ALL}")
+            
+            # 如果API删除失败或验证失败，尝试通过UI删除
             print(f"{Fore.YELLOW}{EMOJI['WARNING']} {self.translator.get('delete_account_online.api_delete_failed')}{Style.RESET_ALL}")
             print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('delete_account_online.trying_ui_delete')}{Style.RESET_ALL}")
             
@@ -232,8 +235,13 @@ class CursorOnlineAccountDeleter:
                     # 等待JS删除操作完成
                     time.sleep(3)
                     
-                    # 再次尝试API删除确认
-                    return self._delete_account_api()
+                    # 验证删除结果
+                    if self.verify_account_deletion():
+                        print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {self.translator.get('delete_account_online.js_delete_success')}{Style.RESET_ALL}")
+                        return True
+                    else:
+                        print(f"{Fore.YELLOW}{EMOJI['WARNING']} {self.translator.get('delete_account_online.js_delete_unverified')}{Style.RESET_ALL}")
+                        return False
                     
                 except Exception as e:
                     print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('delete_account_online.js_delete_failed')}: {str(e)}{Style.RESET_ALL}")
@@ -252,7 +260,7 @@ class CursorOnlineAccountDeleter:
                     "//button[contains(text(), 'Delete')]",
                     "//button[contains(text(), 'Yes')]",
                     "//button[contains(@class, 'confirm') or contains(@class, 'danger')]",
-                    "//div[contains(@class, 'modal')]//button[last()]"  # 通常模态框中的最后一个按钮是确认按钮
+                    "//div[contains(@class, 'modal')]//button[last()]"
                 ]
                 
                 confirm_btn = None
@@ -270,18 +278,21 @@ class CursorOnlineAccountDeleter:
                     confirm_btn.click()
                     time.sleep(get_random_wait_time(self.config, 'page_load_wait'))
                     
-                    # 验证账户是否成功删除（可以检查是否重定向到登录页面或确认页面）
-                    if "login" in self.browser.url or "sign" in self.browser.url:
+                    # 验证删除结果
+                    if self.verify_account_deletion():
                         print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {self.translator.get('delete_account_online.ui_delete_success')}{Style.RESET_ALL}")
                         return True
                     else:
-                        # 尝试再次验证通过API删除
-                        return self._delete_account_api()
-                        
+                        print(f"{Fore.YELLOW}{EMOJI['WARNING']} {self.translator.get('delete_account_online.ui_delete_unverified')}{Style.RESET_ALL}")
+                        return False
+                    
                 else:
                     print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('delete_account_online.confirm_button_not_found')}{Style.RESET_ALL}")
-                    # 虽然没找到确认按钮，但可能初次点击就已经删除了，尝试API确认
-                    return self._delete_account_api()
+                    # 虽然没找到确认按钮，但可能初次点击就已经删除了，尝试验证
+                    if self.verify_account_deletion():
+                        print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {self.translator.get('delete_account_online.ui_delete_success')}{Style.RESET_ALL}")
+                        return True
+                    return False
                     
             except Exception as e:
                 print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('delete_account_online.ui_delete_failed')}: {str(e)}{Style.RESET_ALL}")
@@ -296,29 +307,38 @@ class CursorOnlineAccountDeleter:
         try:
             print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('delete_account_online.using_api')}{Style.RESET_ALL}")
             
+            # 获取认证令牌
+            auth_info = self.auth_manager.get_auth()
+            if not auth_info or not auth_info.get('access_token'):
+                print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('delete_account_online.no_auth_token')}{Style.RESET_ALL}")
+                return False
+            
+            token = auth_info.get('access_token')
+            
             # 使用JavaScript来发送删除账户的API请求
-            delete_js = """
-            function deleteAccount() {
-                return new Promise((resolve, reject) => {
-                    fetch('https://www.cursor.com/api/dashboard/delete-account', {
+            delete_js = f"""
+            function deleteAccount() {{
+                return new Promise((resolve, reject) => {{
+                    fetch('https://www.cursor.com/api/dashboard/delete-account', {{
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
+                        headers: {{
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer {token}'
+                        }},
                         credentials: 'include'
-                    })
-                    .then(response => {
-                        if (response.status === 200) {
+                    }})
+                    .then(response => {{
+                        if (response.status === 200) {{
                             resolve('Account deleted successfully');
-                        } else {
+                        }} else {{
                             reject('Failed to delete account: ' + response.status);
-                        }
-                    })
-                    .catch(error => {
+                        }}
+                    }})
+                    .catch(error => {{
                         reject('Error: ' + error);
-                    });
-                });
-            }
+                    }});
+                }});
+            }}
             return deleteAccount();
             """
             
@@ -367,6 +387,33 @@ class CursorOnlineAccountDeleter:
             except Exception as e:
                 print(f"{Fore.YELLOW}{EMOJI['WARNING']} {self.translator.get('delete_account_online.browser_close_failed')}: {str(e)}{Style.RESET_ALL}")
             self.browser = None
+
+    def verify_account_deletion(self):
+        """验证账户是否已被删除"""
+        try:
+            print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('delete_account_online.verifying_deletion')}{Style.RESET_ALL}")
+            
+            # 尝试访问需要认证的页面
+            self.browser.get('https://www.cursor.com/dashboard')
+            time.sleep(get_random_wait_time(self.config, 'page_load_wait'))
+            
+            # 检查是否被重定向到登录页面
+            if "login" in self.browser.url or "sign" in self.browser.url:
+                print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {self.translator.get('delete_account_online.verification_success')}{Style.RESET_ALL}")
+                return True
+            
+            # 检查页面内容
+            page_text = self.browser.text.lower()
+            if "login" in page_text or "sign in" in page_text or "register" in page_text:
+                print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {self.translator.get('delete_account_online.verification_success')}{Style.RESET_ALL}")
+                return True
+            
+            print(f"{Fore.YELLOW}{EMOJI['WARNING']} {self.translator.get('delete_account_online.verification_inconclusive')}{Style.RESET_ALL}")
+            return False
+            
+        except Exception as e:
+            print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('delete_account_online.verification_failed')}: {str(e)}{Style.RESET_ALL}")
+            return False
 
 def run(translator=None):
     """主函数，从main.py调用"""

@@ -503,6 +503,15 @@
         "register_confirm": "是否立即注册新账户？({choices})",
         "starting_registration": "开始注册新账户...",
         "registration_skipped": "已跳过注册",
-        "unexpected_error": "发生意外错误"
+        "unexpected_error": "发生意外错误",
+        "no_auth_token": "未找到认证令牌",
+        "verifying_deletion": "正在验证账户删除状态...",
+        "verification_success": "账户删除验证成功",
+        "verification_inconclusive": "账户删除状态无法确定",
+        "verification_failed": "账户删除验证失败",
+        "api_delete_unverified": "API删除成功但无法验证",
+        "js_delete_success": "JavaScript删除成功",
+        "js_delete_unverified": "JavaScript删除成功但无法验证",
+        "ui_delete_unverified": "UI删除成功但无法验证"
     }
 } 
