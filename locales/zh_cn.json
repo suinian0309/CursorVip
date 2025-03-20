@@ -154,8 +154,8 @@
         "register_process_error": "注册流程错误: {error}",
         "update_cursor_auth_info": "更新Cursor认证信息",
         "setting_password": "设置密码",
-        "manual_code_input": "手动输入验证码",
-        "manual_email_input": "手动输入邮箱",
+        "manual_code_input": "请手动输入邮箱接收到的验证码",
+        "manual_email_input": "请手动输入邮箱",
         "password": "密码",
         "first_name": "名字",
         "last_name": "姓氏",
@@ -515,6 +515,16 @@
         "api_delete_unverified": "API删除成功但无法验证",
         "js_delete_success": "JavaScript删除成功",
         "js_delete_unverified": "JavaScript删除成功但无法验证",
-        "ui_delete_unverified": "UI删除成功但无法验证"
+        "ui_delete_unverified": "UI删除成功但无法验证",
+        "email_input_prompt": "请输入您当前使用的Cursor账户邮箱:",
+        "current_email": "当前检测到的邮箱",
+        "enter_email": "请输入邮箱地址",
+        "email_empty": "邮箱地址不能为空",
+        "verifying_login": "正在验证登录状态...",
+        "login_required": "请先登录Cursor官网，然后再尝试删除账户",
+        "email_mismatch": "输入的邮箱与当前登录的邮箱不匹配",
+        "login_with_correct_email": "请确保使用输入的邮箱登录Cursor官网",
+        "manual_delete_required": "请登录Cursor官网并在设置页面手动删除您的账户",
+        "manual_delete_suggested": "建议登录Cursor官网并在设置页面手动删除您的账户"
     }
 } 

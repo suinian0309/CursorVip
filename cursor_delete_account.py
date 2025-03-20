@@ -425,6 +425,25 @@ def run(translator=None):
     print(f"\n{Fore.YELLOW}{EMOJI['WARNING']} {translator.get('delete_account_online.warning')}{Style.RESET_ALL}")
     print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('delete_account_online.warning_details')}{Style.RESET_ALL}")
     
+    # 获取当前认证信息
+    auth_manager = CursorAuth(translator=translator)
+    current_auth = auth_manager.get_auth()
+    current_email = current_auth.get('email') if current_auth else None
+    
+    # 要求用户输入邮箱
+    print(f"\n{Fore.CYAN}{EMOJI['INFO']} {translator.get('delete_account_online.email_input_prompt')}{Style.RESET_ALL}")
+    if current_email:
+        print(f"{Fore.CYAN}{EMOJI['INFO']} {translator.get('delete_account_online.current_email')}: {current_email}{Style.RESET_ALL}")
+    
+    email_input = input(f"{EMOJI['INFO']} {Fore.CYAN}{translator.get('delete_account_online.enter_email')}: {Style.RESET_ALL}").strip()
+    
+    # 检查输入是否为空
+    if not email_input:
+        print(f"\n{Fore.RED}{EMOJI['ERROR']} {translator.get('delete_account_online.email_empty')}{Style.RESET_ALL}")
+        print(f"\n{Fore.CYAN}{'='*50}{Style.RESET_ALL}")
+        input(f"{EMOJI['INFO']} {translator.get('delete_account_online.press_enter')}...")
+        return
+        
     # 确认是否继续
     choice = input(f"\n{EMOJI['INFO']} {Fore.CYAN}{translator.get('delete_account_online.confirm', choices='Y/n')}: {Style.RESET_ALL}").lower()
     if choice not in ['', 'y', 'yes']:
@@ -444,9 +463,23 @@ def run(translator=None):
             input(f"{EMOJI['INFO']} {translator.get('delete_account_online.press_enter')}...")
             return
         
+        # 检查当前登录状态
+        print(f"{Fore.CYAN}{EMOJI['INFO']} {translator.get('delete_account_online.verifying_login')}{Style.RESET_ALL}")
+        
         # 登录到Cursor
         if not deleter.login_to_cursor():
             print(f"{Fore.RED}{EMOJI['ERROR']} {translator.get('delete_account_online.login_failed')}{Style.RESET_ALL}")
+            print(f"{Fore.YELLOW}{EMOJI['WARNING']} {translator.get('delete_account_online.login_required')}{Style.RESET_ALL}")
+            deleter.close_browser()
+            print(f"\n{Fore.CYAN}{'='*50}{Style.RESET_ALL}")
+            input(f"{EMOJI['INFO']} {translator.get('delete_account_online.press_enter')}...")
+            return
+        
+        # 验证登录的邮箱是否与用户输入的邮箱匹配
+        auth_info = auth_manager.get_auth()
+        if not auth_info or not auth_info.get('email') or auth_info.get('email') != email_input:
+            print(f"{Fore.RED}{EMOJI['ERROR']} {translator.get('delete_account_online.email_mismatch')}{Style.RESET_ALL}")
+            print(f"{Fore.YELLOW}{EMOJI['WARNING']} {translator.get('delete_account_online.login_with_correct_email')}{Style.RESET_ALL}")
             deleter.close_browser()
             print(f"\n{Fore.CYAN}{'='*50}{Style.RESET_ALL}")
             input(f"{EMOJI['INFO']} {translator.get('delete_account_online.press_enter')}...")
@@ -476,9 +509,11 @@ def run(translator=None):
                 print(f"\n{Fore.YELLOW}{EMOJI['INFO']} {translator.get('delete_account_online.registration_skipped')}{Style.RESET_ALL}")
         else:
             print(f"\n{Fore.RED}{EMOJI['ERROR']} {translator.get('delete_account_online.account_delete_failed')}{Style.RESET_ALL}")
+            print(f"{Fore.YELLOW}{EMOJI['WARNING']} {translator.get('delete_account_online.manual_delete_required')}{Style.RESET_ALL}")
             
     except Exception as e:
         print(f"{Fore.RED}{EMOJI['ERROR']} {translator.get('delete_account_online.unexpected_error')}: {str(e)}{Style.RESET_ALL}")
+        print(f"{Fore.YELLOW}{EMOJI['WARNING']} {translator.get('delete_account_online.manual_delete_suggested')}{Style.RESET_ALL}")
         # 尝试关闭浏览器
         deleter.close_browser()
     

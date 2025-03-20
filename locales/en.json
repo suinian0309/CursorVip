@@ -511,6 +511,25 @@
         "register_confirm": "Register new account now? ({choices})",
         "starting_registration": "Starting new account registration...",
         "registration_skipped": "Registration skipped",
-        "unexpected_error": "Unexpected error occurred"
+        "unexpected_error": "Unexpected error occurred",
+        "no_auth_token": "Authentication token not found",
+        "verifying_deletion": "Verifying account deletion status...",
+        "verification_success": "Account deletion verification successful",
+        "verification_inconclusive": "Account deletion status cannot be determined",
+        "verification_failed": "Account deletion verification failed",
+        "api_delete_unverified": "API deletion successful but cannot verify",
+        "js_delete_success": "JavaScript deletion successful",
+        "js_delete_unverified": "JavaScript deletion successful but cannot verify",
+        "ui_delete_unverified": "UI deletion successful but cannot verify",
+        "email_input_prompt": "Please enter your current Cursor account email:",
+        "current_email": "Currently detected email",
+        "enter_email": "Please enter email address",
+        "email_empty": "Email address cannot be empty",
+        "verifying_login": "Verifying login status...",
+        "login_required": "Please log in to the Cursor website before attempting to delete your account",
+        "email_mismatch": "The email entered does not match the currently logged in email",
+        "login_with_correct_email": "Please ensure you are logged in with the email you entered",
+        "manual_delete_required": "Please log in to the Cursor website and manually delete your account in the settings page",
+        "manual_delete_suggested": "It is recommended to log in to the Cursor website and manually delete your account in the settings page"
     }
 }
