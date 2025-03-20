@@ -313,10 +313,13 @@
         "startup_task_created": "Startup cleanup task created successfully",
         "manual_cleanup_needed": "Manual cleanup may be needed after restart",
         "cleanup_script_location": "Cleanup script located at: {path}",
-        "no_old_versions": "No old versions found to clean up",
-        "cleanup_error": "Error during cleanup: {error}",
-        "dev_mode_no_uninstall": "Running in development mode, uninstallation skipped",
-        "non_standard_filename": "Non-standard filename detected, uninstallation skipped"
+        "no_old_versions": "No old versions found",
+        "cleanup_error": "Error during cleanup process: {error}",
+        "dev_mode_no_uninstall": "Running in development mode, skipping uninstallation",
+        "non_standard_filename": "Non-standard filename detected, skipping uninstallation",
+        "update_in_progress": "Update is already in progress, please wait for completion",
+        "cannot_create_lock": "Cannot create update lock file, continuing update but may have issues",
+        "retry_later": "Update failed (attempt {count}/3), will try again later"
     },
     "totally_reset": {
         "title": "Totally Reset Cursor",

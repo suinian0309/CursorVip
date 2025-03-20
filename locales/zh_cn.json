@@ -308,10 +308,13 @@
         "startup_task_created": "启动清理任务创建成功",
         "manual_cleanup_needed": "重启后可能需要手动清理",
         "cleanup_script_location": "清理脚本位置: {path}",
-        "no_old_versions": "未发现需要清理的旧版本",
-        "cleanup_error": "清理过程中出错: {error}",
-        "dev_mode_no_uninstall": "在开发模式下运行，跳过卸载",
-        "non_standard_filename": "检测到非标准文件名，跳过卸载"
+        "no_old_versions": "未发现旧版本",
+        "cleanup_error": "清理过程出错: {error}",
+        "dev_mode_no_uninstall": "开发模式下，跳过旧版本清理",
+        "non_standard_filename": "非标准文件名，跳过旧版本清理",
+        "update_in_progress": "更新已在进行中，请等待更新完成",
+        "cannot_create_lock": "无法创建更新锁定文件，继续更新但可能有问题",
+        "retry_later": "更新失败（尝试 {count}/3），稍后将再次尝试"
     },
     "totally_reset": {
         "title": "完全重置 Cursor",

@@ -261,8 +261,33 @@ def select_language():
 
 def check_latest_version(force_update=True):
     """Check if current version matches the latest release version and update automatically if needed"""
+    # 使用静态文件作为更新锁，避免重复更新
+    update_lock_file = os.path.join(os.path.dirname(os.path.abspath(sys.executable if getattr(sys, 'frozen', False) else __file__)), ".update_in_progress")
+    
+    # 如果更新锁存在且创建时间不超过10分钟，表示更新正在进行中，避免重复启动更新
+    if os.path.exists(update_lock_file):
+        try:
+            file_age = time.time() - os.path.getmtime(update_lock_file)
+            if file_age < 600:  # 10分钟内
+                print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.update_in_progress')}{Style.RESET_ALL}")
+                return
+            else:
+                # 锁文件太旧，可能是之前更新失败，删除它
+                os.remove(update_lock_file)
+        except Exception:
+            # 忽略删除错误，继续检查更新
+            pass
+    
     try:
         print(f"\n{Fore.CYAN}{EMOJI['UPDATE']} {translator.get('updater.checking')}{Style.RESET_ALL}")
+        
+        # 创建更新锁文件
+        try:
+            with open(update_lock_file, 'w') as f:
+                f.write(str(time.time()))
+        except Exception:
+            # 如果无法创建锁文件，继续检查但记录警告
+            print(f"{Fore.YELLOW}{EMOJI['WARNING']} {translator.get('updater.cannot_create_lock')}{Style.RESET_ALL}")
         
         # Get latest version from GitHub API with timeout and proper headers
         headers = {
@@ -312,7 +337,7 @@ def check_latest_version(force_update=True):
         if is_newer_version_available:
             print(f"\n{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.new_version_available', current=version, latest=latest_version)}{Style.RESET_ALL}")
             
-            # Force update without asking user
+            # 强制更新，不询问用户
             print(f"\n{Fore.GREEN}{EMOJI['UPDATE']} {translator.get('updater.auto_updating')}{Style.RESET_ALL}")
             
             try:
@@ -367,6 +392,14 @@ def check_latest_version(force_update=True):
                         os.remove('install.sh')
                 
                 print(f"\n{Fore.GREEN}{EMOJI['SUCCESS']} {translator.get('updater.updating')}{Style.RESET_ALL}")
+                
+                # 删除更新锁文件
+                if os.path.exists(update_lock_file):
+                    try:
+                        os.remove(update_lock_file)
+                    except Exception:
+                        pass
+                
                 sys.exit(0)
                 
             except Exception as update_error:
@@ -386,15 +419,68 @@ def check_latest_version(force_update=True):
                             print(f"{Fore.CYAN}{EMOJI['INFO']} {translator.get('updater.found_cached_installer')}{Style.RESET_ALL}")
                             subprocess.Popen(cached_installer)
                             recovery_successful = True
+                            
+                            # 删除更新锁文件
+                            if os.path.exists(update_lock_file):
+                                try:
+                                    os.remove(update_lock_file)
+                                except Exception:
+                                    pass
+                                    
                             sys.exit(0)
                     
                     if not recovery_successful:
-                        print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.manual_update_required')}{Style.RESET_ALL}")
+                        # 创建重试计数文件
+                        retry_count_file = os.path.join(os.path.dirname(os.path.abspath(sys.executable if getattr(sys, 'frozen', False) else __file__)), ".update_retry_count")
+                        retry_count = 0
+                        
+                        if os.path.exists(retry_count_file):
+                            try:
+                                with open(retry_count_file, 'r') as f:
+                                    retry_count = int(f.read().strip() or '0')
+                            except Exception:
+                                retry_count = 0
+                        
+                        # 如果重试次数超过3次，则提示用户手动更新
+                        if retry_count >= 3:
+                            print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.manual_update_required')}{Style.RESET_ALL}")
+                            # 重置重试计数
+                            try:
+                                with open(retry_count_file, 'w') as f:
+                                    f.write('0')
+                            except Exception:
+                                pass
+                        else:
+                            # 增加重试计数
+                            retry_count += 1
+                            try:
+                                with open(retry_count_file, 'w') as f:
+                                    f.write(str(retry_count))
+                            except Exception:
+                                pass
+                            
+                            print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.retry_later', count=retry_count)}{Style.RESET_ALL}")
+                        
+                        # 删除更新锁文件
+                        if os.path.exists(update_lock_file):
+                            try:
+                                os.remove(update_lock_file)
+                            except Exception:
+                                pass
+                        
                         return
                         
                 except Exception as recovery_error:
                     print(f"{Fore.RED}{EMOJI['ERROR']} {translator.get('updater.recovery_failed', error=str(recovery_error))}{Style.RESET_ALL}")
                     print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.manual_update_required')}{Style.RESET_ALL}")
+                    
+                    # 删除更新锁文件
+                    if os.path.exists(update_lock_file):
+                        try:
+                            os.remove(update_lock_file)
+                        except Exception:
+                            pass
+                    
                     return
         else:
             # If current version is newer or equal to latest version
@@ -403,14 +489,37 @@ def check_latest_version(force_update=True):
             else:
                 print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {translator.get('updater.up_to_date')}{Style.RESET_ALL}")
             
+            # 删除更新锁文件
+            if os.path.exists(update_lock_file):
+                try:
+                    os.remove(update_lock_file)
+                except Exception:
+                    pass
+            
     except requests.exceptions.RequestException as e:
         print(f"{Fore.RED}{EMOJI['ERROR']} {translator.get('updater.network_error', error=str(e))}{Style.RESET_ALL}")
         print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.continue_anyway')}{Style.RESET_ALL}")
+        
+        # 删除更新锁文件
+        if os.path.exists(update_lock_file):
+            try:
+                os.remove(update_lock_file)
+            except Exception:
+                pass
+        
         return
         
     except Exception as e:
         print(f"{Fore.RED}{EMOJI['ERROR']} {translator.get('updater.check_failed', error=str(e))}{Style.RESET_ALL}")
         print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.continue_anyway')}{Style.RESET_ALL}")
+        
+        # 删除更新锁文件
+        if os.path.exists(update_lock_file):
+            try:
+                os.remove(update_lock_file)
+            except Exception:
+                pass
+        
         return
 
 def check_and_remove_old_versions():
@@ -621,8 +730,20 @@ def main():
     if is_first_run:
         check_and_remove_old_versions()
     
-    # Force check latest version
-    check_latest_version(force_update=True)
+    # 创建已检查更新标志文件的路径
+    update_checked_marker = os.path.join(os.path.dirname(os.path.abspath(sys.executable if getattr(sys, 'frozen', False) else __file__)), ".update_checked")
+    
+    # 只有在标志文件不存在时才检查更新，防止重复检查
+    if not os.path.exists(update_checked_marker):
+        # Force check latest version
+        check_latest_version(force_update=True)
+        
+        # 创建标志文件，标记已完成更新检查
+        try:
+            with open(update_checked_marker, 'w') as f:
+                f.write(str(time.time()))
+        except Exception:
+            pass
     
     # Print menu and continue with normal operation
     print_menu()
