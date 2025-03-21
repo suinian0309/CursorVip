@@ -314,44 +314,209 @@ class CursorOnlineAccountDeleter:
                 return False
             
             token = auth_info.get('access_token')
+            email = auth_info.get('email', '')
             
-            # 使用JavaScript来发送删除账户的API请求
-            delete_js = f"""
-            function deleteAccount() {{
+            # 验证令牌有效性 - 先尝试获取用户信息
+            validate_js = f"""
+            function validateToken() {{
                 return new Promise((resolve, reject) => {{
-                    fetch('https://www.cursor.com/api/dashboard/delete-account', {{
-                        method: 'POST',
+                    fetch('https://www.cursor.com/api/dashboard/user', {{
+                        method: 'GET',
                         headers: {{
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer {token}'
+                            'Authorization': 'Bearer {token}',
+                            'Content-Type': 'application/json'
                         }},
                         credentials: 'include'
                     }})
                     .then(response => {{
                         if (response.status === 200) {{
-                            resolve('Account deleted successfully');
+                            resolve('Token valid');
                         }} else {{
-                            reject('Failed to delete account: ' + response.status);
+                            reject('Token invalid or expired: ' + response.status);
                         }}
                     }})
                     .catch(error => {{
-                        reject('Error: ' + error);
+                        reject('Error validating token: ' + error);
                     }});
+                }});
+            }}
+            return validateToken();
+            """
+            
+            try:
+                validate_result = self.browser.run_js(validate_js)
+                print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('delete_account_online.token_validation')}: {validate_result}{Style.RESET_ALL}")
+            except Exception as e:
+                print(f"{Fore.YELLOW}{EMOJI['WARNING']} {self.translator.get('delete_account_online.token_validation_failed')}: {str(e)}{Style.RESET_ALL}")
+                # 继续尝试删除，即使验证失败
+            
+            # 进行预检请求，确认CORS和权限
+            preflight_js = f"""
+            function checkDeleteEndpoint() {{
+                return new Promise((resolve, reject) => {{
+                    fetch('https://www.cursor.com/api/dashboard/delete-account', {{
+                        method: 'OPTIONS',
+                        headers: {{
+                            'Origin': 'https://www.cursor.com',
+                            'Access-Control-Request-Method': 'POST',
+                            'Access-Control-Request-Headers': 'Content-Type, Authorization'
+                        }}
+                    }})
+                    .then(response => {{
+                        if (response.ok) {{
+                            resolve('Preflight successful');
+                        }} else {{
+                            resolve('Preflight response: ' + response.status);
+                        }}
+                    }})
+                    .catch(error => {{
+                        resolve('Preflight error: ' + error);
+                    }});
+                }});
+            }}
+            return checkDeleteEndpoint();
+            """
+            
+            try:
+                preflight_result = self.browser.run_js(preflight_js)
+                print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('delete_account_online.preflight_check')}: {preflight_result}{Style.RESET_ALL}")
+            except Exception as e:
+                print(f"{Fore.YELLOW}{EMOJI['WARNING']} {self.translator.get('delete_account_online.preflight_check_failed')}: {str(e)}{Style.RESET_ALL}")
+                # 继续尝试删除，即使预检失败
+            
+            # 先访问设置页面，确保cookies和会话状态正确
+            print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('delete_account_online.preparing_session')}{Style.RESET_ALL}")
+            self.browser.get("https://www.cursor.com/settings")
+            time.sleep(get_random_wait_time(self.config, 'page_load_wait'))
+            
+            # 模拟用户浏览行为
+            scroll_js = "window.scrollTo(0, document.body.scrollHeight/2); return 'Scrolled';"
+            self.browser.run_js(scroll_js)
+            time.sleep(get_random_wait_time(self.config, 'user_action_wait', default=1.5))
+            
+            # 获取当前页面的cookies和CSRF令牌（如果有）
+            csrf_token_js = """
+            function getCSRFToken() {
+                // 从meta标签获取
+                const metaToken = document.querySelector('meta[name="csrf-token"]');
+                if (metaToken) return metaToken.getAttribute('content');
+                
+                // 从cookie获取
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    cookie = cookie.trim();
+                    if (cookie.startsWith('XSRF-TOKEN=')) {
+                        return decodeURIComponent(cookie.substring(11));
+                    }
+                }
+                return null;
+            }
+            return getCSRFToken();
+            """
+            
+            csrf_token = None
+            try:
+                csrf_token = self.browser.run_js(csrf_token_js)
+                if csrf_token and csrf_token != "null":
+                    print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('delete_account_online.csrf_token_found')}{Style.RESET_ALL}")
+                else:
+                    print(f"{Fore.YELLOW}{EMOJI['WARNING']} {self.translator.get('delete_account_online.no_csrf_token')}{Style.RESET_ALL}")
+                    csrf_token = None
+            except Exception as e:
+                print(f"{Fore.YELLOW}{EMOJI['WARNING']} {self.translator.get('delete_account_online.csrf_token_error')}: {str(e)}{Style.RESET_ALL}")
+            
+            # 构建完整的删除请求
+            csrf_header = f"'X-CSRF-TOKEN': '{csrf_token}'," if csrf_token else ""
+            
+            # 使用JavaScript来发送删除账户的API请求，添加多种认证方式和头部
+            delete_js = f"""
+            function deleteAccount() {{
+                return new Promise((resolve, reject) => {{
+                    // 随机延时，模拟真实用户行为
+                    setTimeout(() => {{
+                        // 构建请求体，可能需要额外确认参数
+                        const requestBody = JSON.stringify({{
+                            confirm: true,
+                            email: '{email}'
+                        }});
+                        
+                        fetch('https://www.cursor.com/api/dashboard/delete-account', {{
+                            method: 'POST',
+                            headers: {{
+                                'Content-Type': 'application/json',
+                                'Authorization': 'Bearer {token}',
+                                {csrf_header}
+                                'Accept': 'application/json',
+                                'Origin': 'https://www.cursor.com',
+                                'Referer': 'https://www.cursor.com/settings',
+                                'User-Agent': navigator.userAgent,
+                                'Sec-Fetch-Site': 'same-origin',
+                                'Sec-Fetch-Mode': 'cors'
+                            }},
+                            body: requestBody,
+                            credentials: 'include'
+                        }})
+                        .then(response => {{
+                            if (response.status === 200 || response.status === 204) {{
+                                resolve('Account deleted successfully (Status: ' + response.status + ')');
+                            }} else {{
+                                // 尝试解析响应内容
+                                response.text().then(text => {{
+                                    try {{
+                                        const json = JSON.parse(text);
+                                        reject('Failed to delete account: ' + response.status + ' - ' + JSON.stringify(json));
+                                    }} catch (e) {{
+                                        reject('Failed to delete account: ' + response.status + ' - ' + text);
+                                    }}
+                                }}).catch(error => {{
+                                    reject('Failed to delete account: ' + response.status);
+                                }});
+                            }}
+                        }})
+                        .catch(error => {{
+                            reject('Error: ' + error);
+                        }});
+                    }}, Math.floor(Math.random() * 500) + 200); // 随机延时200-700ms
                 }});
             }}
             return deleteAccount();
             """
             
-            result = self.browser.run_js(delete_js)
-            print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('delete_account_online.api_result')}: {result}{Style.RESET_ALL}")
+            # 设置超时和重试机制
+            max_retries = 3
+            retry_count = 0
+            while retry_count < max_retries:
+                try:
+                    retry_count += 1
+                    print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('delete_account_online.api_attempt', attempt=retry_count, max=max_retries)}{Style.RESET_ALL}")
+                    
+                    result = self.browser.run_js(delete_js)
+                    print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('delete_account_online.api_result')}: {result}{Style.RESET_ALL}")
+                    
+                    # 验证API是否成功
+                    if "success" in str(result).lower() or "deleted" in str(result).lower() or "200" in str(result) or "204" in str(result):
+                        print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {self.translator.get('delete_account_online.api_success')}{Style.RESET_ALL}")
+                        return True
+                    else:
+                        print(f"{Fore.YELLOW}{EMOJI['WARNING']} {self.translator.get('delete_account_online.api_unexpected_result')}{Style.RESET_ALL}")
+                        # 如果不是最后一次尝试，等待后重试
+                        if retry_count < max_retries:
+                            wait_time = retry_count * 2  # 递增等待时间
+                            print(f"{Fore.YELLOW}{EMOJI['WAIT']} {self.translator.get('delete_account_online.retrying', seconds=wait_time)}{Style.RESET_ALL}")
+                            time.sleep(wait_time)
+                        else:
+                            return False
+                except Exception as e:
+                    print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('delete_account_online.api_attempt_failed')}: {str(e)}{Style.RESET_ALL}")
+                    # 如果不是最后一次尝试，等待后重试
+                    if retry_count < max_retries:
+                        wait_time = retry_count * 2  # 递增等待时间
+                        print(f"{Fore.YELLOW}{EMOJI['WAIT']} {self.translator.get('delete_account_online.retrying', seconds=wait_time)}{Style.RESET_ALL}")
+                        time.sleep(wait_time)
+                    else:
+                        return False
             
-            # 验证API是否成功
-            if "success" in str(result).lower():
-                print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {self.translator.get('delete_account_online.api_success')}{Style.RESET_ALL}")
-                return True
-            else:
-                print(f"{Fore.YELLOW}{EMOJI['WARNING']} {self.translator.get('delete_account_online.api_unexpected_result')}{Style.RESET_ALL}")
-                return False
+            return False
                 
         except Exception as e:
             print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('delete_account_online.api_failed')}: {str(e)}{Style.RESET_ALL}")

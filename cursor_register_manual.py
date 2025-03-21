@@ -253,13 +253,19 @@ class CursorRegistration:
         auth_manager = CursorAuth(translator=self.translator)
         return auth_manager.update_auth(email, access_token, refresh_token)
 
-def main(translator=None):
+def main(translator=None, email=None, password=None):
     """Main function to be called from main.py"""
     print(f"\n{Fore.CYAN}{'='*50}{Style.RESET_ALL}")
     print(f"{Fore.CYAN}{EMOJI['START']} {translator.get('register.title')}{Style.RESET_ALL}")
     print(f"{Fore.CYAN}{'='*50}{Style.RESET_ALL}")
 
     registration = CursorRegistration(translator)
+    
+    # 如果提供了邮箱和密码，则直接使用
+    if email and password:
+        registration.email_address = email
+        registration.password = password
+    
     registration.start()
 
     print(f"\n{Fore.CYAN}{'='*50}{Style.RESET_ALL}")

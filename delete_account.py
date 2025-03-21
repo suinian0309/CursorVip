@@ -150,6 +150,33 @@ def run(translator=None):
     print(f"\n{Fore.YELLOW}{EMOJI['WARNING']} {translator.get('delete_account.warning')}{Style.RESET_ALL}")
     print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('delete_account.warning_details')}{Style.RESET_ALL}")
     
+    # 获取当前认证信息
+    auth_manager = CursorAuth(translator=translator)
+    current_auth = auth_manager.get_auth()
+    current_email = current_auth.get('email') if current_auth else None
+    
+    # 要求用户输入邮箱
+    print(f"\n{Fore.CYAN}{EMOJI['INFO']} {translator.get('delete_account.email_input_prompt')}{Style.RESET_ALL}")
+    if current_email:
+        print(f"{Fore.CYAN}{EMOJI['INFO']} {translator.get('delete_account.current_email')}: {current_email}{Style.RESET_ALL}")
+    
+    email_input = input(f"{EMOJI['INFO']} {Fore.CYAN}{translator.get('delete_account.enter_email')}: {Style.RESET_ALL}").strip()
+    
+    # 检查输入是否为空
+    if not email_input:
+        print(f"\n{Fore.RED}{EMOJI['ERROR']} {translator.get('delete_account.email_empty')}{Style.RESET_ALL}")
+        print(f"\n{Fore.CYAN}{'='*50}{Style.RESET_ALL}")
+        input(f"{EMOJI['INFO']} {translator.get('delete_account.press_enter')}...")
+        return
+    
+    # 检查输入的邮箱与当前邮箱是否匹配
+    if current_email and current_email.lower() != email_input.lower():
+        print(f"{Fore.RED}{EMOJI['ERROR']} {translator.get('delete_account.email_mismatch')}{Style.RESET_ALL}")
+        print(f"{Fore.YELLOW}{EMOJI['WARNING']} {translator.get('delete_account.login_with_correct_email')}{Style.RESET_ALL}")
+        print(f"\n{Fore.CYAN}{'='*50}{Style.RESET_ALL}")
+        input(f"{EMOJI['INFO']} {translator.get('delete_account.press_enter')}...")
+        return
+    
     # 确认是否继续
     choice = input(f"\n{EMOJI['INFO']} {Fore.CYAN}{translator.get('delete_account.confirm', choices='Y/n')}: {Style.RESET_ALL}").lower()
     if choice not in ['', 'y', 'yes']:
@@ -167,8 +194,29 @@ def run(translator=None):
         
         if choice in ['', 'y', 'yes']:
             print(f"\n{Fore.CYAN}{EMOJI['START']} {translator.get('delete_account.starting_registration')}{Style.RESET_ALL}")
-            # 调用注册功能
-            cursor_register_manual.main(translator)
+            
+            # 询问是否使用刚才的邮箱
+            print(f"{Fore.CYAN}{EMOJI['INFO']} {translator.get('delete_account.use_previous_email_prompt', email=email_input)}{Style.RESET_ALL}")
+            use_previous_email = input(f"{EMOJI['INFO']} {Fore.CYAN}{translator.get('delete_account.use_previous_email', choices='Y/n')}: {Style.RESET_ALL}").lower()
+            
+            if use_previous_email in ['', 'y', 'yes']:
+                # 请求用户输入密码
+                print(f"{Fore.CYAN}{EMOJI['INFO']} {translator.get('delete_account.enter_password_prompt')}{Style.RESET_ALL}")
+                password = input(f"{EMOJI['INFO']} {Fore.CYAN}{translator.get('delete_account.password')}: {Style.RESET_ALL}").strip()
+                
+                # 检查密码是否为空或太短
+                if not password or len(password) < 8:
+                    print(f"{Fore.RED}{EMOJI['ERROR']} {translator.get('delete_account.password_too_short')}{Style.RESET_ALL}")
+                    print(f"\n{Fore.CYAN}{'='*50}{Style.RESET_ALL}")
+                    input(f"{EMOJI['INFO']} {translator.get('delete_account.press_enter')}...")
+                    return
+                
+                # 调用注册功能，传递邮箱和密码
+                import cursor_register_manual
+                cursor_register_manual.main(translator, email=email_input, password=password)
+            else:
+                # 使用原始注册流程
+                cursor_register_manual.main(translator)
         else:
             print(f"\n{Fore.YELLOW}{EMOJI['INFO']} {translator.get('delete_account.registration_skipped')}{Style.RESET_ALL}")
     
