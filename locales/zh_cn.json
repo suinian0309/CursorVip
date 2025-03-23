@@ -450,7 +450,12 @@
         "enter_email": "请输入邮箱地址",
         "email_empty": "邮箱地址不能为空",
         "email_mismatch": "输入的邮箱与当前登录的邮箱不匹配",
-        "login_with_correct_email": "请确保使用输入的邮箱登录Cursor"
+        "login_with_correct_email": "请确保使用输入的邮箱登录Cursor",
+        "use_previous_email_prompt": "是否使用之前输入的邮箱 ({email})?",
+        "use_previous_email": "是否使用之前的邮箱? ({choices})",
+        "enter_password_prompt": "请为您的新账户输入密码:",
+        "password": "密码",
+        "password_too_short": "密码太短，至少需要8个字符。"
     },
     "delete_account_online": {
         "title": "删除Cursor官网账户",

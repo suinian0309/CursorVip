@@ -455,7 +455,12 @@
         "enter_email": "Please enter email address",
         "email_empty": "Email address cannot be empty",
         "email_mismatch": "The email entered does not match the currently logged in email",
-        "login_with_correct_email": "Please ensure you are logged in with the email you entered"
+        "login_with_correct_email": "Please ensure you are logged in with the email you entered",
+        "use_previous_email_prompt": "Would you like to use the previously entered email ({email})?",
+        "use_previous_email": "Use previous email? ({choices})",
+        "enter_password_prompt": "Please enter a password for your new account:",
+        "password": "Password",
+        "password_too_short": "Password is too short. It must be at least 8 characters long."
     },
     "delete_account_online": {
         "title": "Delete Account on Cursor Website",
