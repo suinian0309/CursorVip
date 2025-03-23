@@ -4,10 +4,10 @@
         "exit": "退出程序",
         "reset": "重置机器标识",
         "register": "注册新 Cursor 账号",
-        "delete_and_register": "一键删除Cursor账户并重新注册【推荐有账户的循环使用】",
-        "register_google": "使用 Google 账号注册【无账户推荐】",
-        "register_github": "使用 GitHub 账号注册【无账户推荐】",
-        "register_manual": "使用自定义邮箱注册",
+        "delete_and_register": "一键删除Cursor账户并重新注册【推荐有cursor账户的循环使用】",
+        "register_google": "使用 Google 账号注册【无cursor账户推荐使用这个注册】",
+        "register_github": "使用 GitHub 账号注册【无cursor账户推荐使用这个注册】",
+        "register_manual": "使用自定义邮箱注册【不支持临时邮箱】",
         "quit": "关闭 Cursor 应用",
         "select_language": "更改语言",
         "input_choice": "请输入您的选择 ({choices})",
@@ -19,7 +19,7 @@
         "lifetime_access_enabled": "永久订阅",
         "totally_reset": "完全重置 Cursor",
         "join_group": "不会用？遇到问题？请加入交流群",
-        "delete_account_online": "在Cursor官网删除账户"
+        "delete_account_online": "仅仅在Cursor官网删除账户"
     },
     "languages": {
         "en": "English",
@@ -444,7 +444,13 @@
         "register_prompt": "账户已删除，是否立即重新注册新账户？",
         "register_confirm": "是否立即注册新账户？({choices})",
         "starting_registration": "开始注册新账户...",
-        "registration_skipped": "已跳过注册"
+        "registration_skipped": "已跳过注册",
+        "email_input_prompt": "请输入您当前使用的Cursor账户邮箱:",
+        "current_email": "当前检测到的邮箱",
+        "enter_email": "请输入邮箱地址",
+        "email_empty": "邮箱地址不能为空",
+        "email_mismatch": "输入的邮箱与当前登录的邮箱不匹配",
+        "login_with_correct_email": "请确保使用输入的邮箱登录Cursor"
     },
     "delete_account_online": {
         "title": "删除Cursor官网账户",
@@ -525,6 +531,17 @@
         "email_mismatch": "输入的邮箱与当前登录的邮箱不匹配",
         "login_with_correct_email": "请确保使用输入的邮箱登录Cursor官网",
         "manual_delete_required": "请登录Cursor官网并在设置页面手动删除您的账户",
-        "manual_delete_suggested": "建议登录Cursor官网并在设置页面手动删除您的账户"
+        "manual_delete_suggested": "建议登录Cursor官网并在设置页面手动删除您的账户",
+        "token_validation": "令牌验证结果",
+        "token_validation_failed": "令牌验证失败",
+        "preflight_check": "API预检结果",
+        "preflight_check_failed": "API预检失败",
+        "preparing_session": "准备会话状态...",
+        "csrf_token_found": "已找到CSRF令牌",
+        "no_csrf_token": "未找到CSRF令牌，继续尝试",
+        "csrf_token_error": "获取CSRF令牌时出错",
+        "api_attempt": "API尝试 ({attempt}/{max})",
+        "api_attempt_failed": "API尝试失败",
+        "retrying": "{seconds}秒后重试..."
     }
 } 

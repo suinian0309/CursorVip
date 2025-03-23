@@ -3,9 +3,9 @@ import os
 import platform
 from dotenv import load_dotenv
 
-# 加載環境變量獲取版本號
+# 加载环境变量获取版本号
 load_dotenv()
-version = os.getenv('VERSION', '1.0.0')
+version = os.getenv('VERSION', '1.8.05')  # 更新默认版本号
 
 # 根据系统类型设置输出名称
 system = platform.system().lower()
@@ -34,6 +34,15 @@ a = Analysis(
         ('new_tempemail.py', '.'),
         ('quit_cursor.py', '.'),
         ('cursor_register_manual.py', '.'),
+        ('cursor_register_google.py', '.'),
+        ('cursor_register_github.py', '.'),
+        ('delete_account.py', '.'),
+        ('cursor_delete_account.py', '.'),
+        ('totally_reset_cursor.py', '.'),
+        ('disable_auto_update.py', '.'),
+        ('show_wechat_group.py', '.'),
+        ('utils.py', '.'),
+        ('config.py', '.'),
         ('.env', '.')
     ],
     hiddenimports=[
@@ -42,7 +51,23 @@ a = Analysis(
         'new_signup',
         'new_tempemail',
         'quit_cursor',
-        'cursor_register_manual'
+        'cursor_register_manual',
+        'cursor_register_google',
+        'cursor_register_github',
+        'delete_account',
+        'cursor_delete_account',
+        'totally_reset_cursor',
+        'disable_auto_update',
+        'show_wechat_group',
+        'utils',
+        'config',
+        'DrissionPage',
+        'colorama',
+        'dotenv',
+        'requests',
+        'selenium',
+        'webdriver_manager',
+        'sqlite3',
     ],
     hookspath=[],
     hooksconfig={},
@@ -53,15 +78,13 @@ a = Analysis(
 
 pyz = PYZ(a.pure)
 
-target_arch = os.environ.get('TARGET_ARCH', None)
-
 exe = EXE(
     pyz,
     a.scripts,
     a.binaries,
     a.datas,
     [],
-    name=output_name,  # 使用动态生成的名称
+    name=output_name,
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -70,9 +93,10 @@ exe = EXE(
     runtime_tmpdir=None,
     console=True,
     disable_windowed_traceback=False,
-    argv_emulation=True,  # 对非Mac平台无影响
-    target_arch=target_arch,  # 仅在需要时通过环境变量指定
+    argv_emulation=False,  # Windows不需要argv模拟
+    target_arch=None,  # 使用默认架构
     codesign_identity=None,
     entitlements_file=None,
-    icon=None
+    version='file_version_info.txt',  # 添加版本信息
+    uac_admin=True,  # 请求管理员权限
 )

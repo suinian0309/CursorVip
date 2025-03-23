@@ -449,7 +449,13 @@
         "register_prompt": "Account deleted, would you like to register a new account now?",
         "register_confirm": "Register new account now? ({choices})",
         "starting_registration": "Starting new account registration...",
-        "registration_skipped": "Registration skipped"
+        "registration_skipped": "Registration skipped",
+        "email_input_prompt": "Please enter your current Cursor account email:",
+        "current_email": "Currently detected email",
+        "enter_email": "Please enter email address",
+        "email_empty": "Email address cannot be empty",
+        "email_mismatch": "The email entered does not match the currently logged in email",
+        "login_with_correct_email": "Please ensure you are logged in with the email you entered"
     },
     "delete_account_online": {
         "title": "Delete Account on Cursor Website",
@@ -530,6 +536,17 @@
         "email_mismatch": "The email entered does not match the currently logged in email",
         "login_with_correct_email": "Please ensure you are logged in with the email you entered",
         "manual_delete_required": "Please log in to the Cursor website and manually delete your account in the settings page",
-        "manual_delete_suggested": "It is recommended to log in to the Cursor website and manually delete your account in the settings page"
+        "manual_delete_suggested": "It is recommended to log in to the Cursor website and manually delete your account in the settings page",
+        "token_validation": "Token validation result",
+        "token_validation_failed": "Token validation failed",
+        "preflight_check": "API preflight result",
+        "preflight_check_failed": "API preflight failed",
+        "preparing_session": "Preparing session state...",
+        "csrf_token_found": "CSRF token found",
+        "no_csrf_token": "CSRF token not found, continuing anyway",
+        "csrf_token_error": "Error getting CSRF token",
+        "api_attempt": "API attempt ({attempt}/{max})",
+        "api_attempt_failed": "API attempt failed",
+        "retrying": "Retrying in {seconds} seconds..."
     }
 }
