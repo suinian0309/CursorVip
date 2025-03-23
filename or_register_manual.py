@@ -71,14 +71,14 @@ class CursorRegistration:
     def setup_email(self):
         """Setup Email"""
         try:
-            print(f"{Fore.CYAN}{EMOJI['START']} {self.translator.get('register.manual_email_input') if self.translator else 'Please enter your email address:'}")
-            self.email_address = input().strip()
+            print(f"{Fore.CYAN}{EMOJI['START']} {self.translator.get('register.manual_email_input', '请手动输入您的邮箱地址')}{Style.RESET_ALL}")
+            self.email_address = input(f"{EMOJI['INFO']} {Fore.CYAN}{self.translator.get('register.enter_email', '请输入您的邮箱地址')}: {Style.RESET_ALL}").strip()
             
             if '@' not in self.email_address:
-                print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('register.invalid_email') if self.translator else '无效的邮箱地址'}{Style.RESET_ALL}")
+                print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('register.invalid_email', '无效的邮箱地址')}{Style.RESET_ALL}")
                 return False
                 
-            print(f"{Fore.CYAN}{EMOJI['MAIL']} {self.translator.get('register.email_address')}: {self.email_address}\n{Style.RESET_ALL}")
+            print(f"{Fore.CYAN}{EMOJI['MAIL']} {self.translator.get('register.email_address', '邮箱地址')}: {self.email_address}\n{Style.RESET_ALL}")
             return True
             
         except Exception as e:
@@ -88,11 +88,11 @@ class CursorRegistration:
     def get_verification_code(self):
         """Manually Get Verification Code"""
         try:
-            print(f"{Fore.CYAN}{EMOJI['CODE']} {self.translator.get('register.manual_code_input') if self.translator else 'Please enter the verification code:'}")
-            code = input().strip()
+            print(f"{Fore.CYAN}{EMOJI['CODE']} {self.translator.get('register.manual_code_input', '请输入验证码')}{Style.RESET_ALL}")
+            code = input(f"{EMOJI['INFO']} {Fore.CYAN}{self.translator.get('register.enter_code', '请输入6位数字验证码')}: {Style.RESET_ALL}").strip()
             
             if not code.isdigit() or len(code) != 6:
-                print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('register.invalid_code') if self.translator else '无效的验证码'}{Style.RESET_ALL}")
+                print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('register.invalid_code', '无效的验证码')}{Style.RESET_ALL}")
                 return None
                 
             return code
