@@ -149,14 +149,14 @@ jobs:
     
     - name: Build in ARM64 Docker container
       run: |
-        docker run --rm --platform linux/arm64 -v ${{ github.workspace }}:/app -w /app -e VERSION=${{ github.event.inputs.version }} arm64v8/python:3.9-slim bash -c "
+        docker run --rm --platform linux/arm64 -v ${{ github.workspace }}:/app -w /app -e VERSION=${{ github.event.inputs.version }} arm64v8/python:3.9-slim bash -c '
           apt-get update && apt-get install -y build-essential
           pip install --upgrade pip
           pip install pyinstaller
           pip install -r requirements.txt
           python -m PyInstaller build.spec
-          mv /app/dist/CursorVIP_${VERSION}_linux /app/dist/CursorVIP_${VERSION}_linux_arm64
-        "
+          mv "/app/dist/CursorVIP_${VERSION}_linux" "/app/dist/CursorVIP_${VERSION}_linux_arm64"
+        '
         echo "Contents of dist directory:"
         ls -la dist/
         
