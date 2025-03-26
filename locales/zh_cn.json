@@ -550,6 +550,22 @@
         "csrf_token_error": "获取CSRF令牌时出错",
         "api_attempt": "API尝试 ({attempt}/{max})",
         "api_attempt_failed": "API尝试失败",
-        "retrying": "{seconds}秒后重试..."
+        "retrying": "{seconds}秒后重试...",
+        "use_current_email": "是否使用当前账户邮箱 ({email}) 重新注册？",
+        "use_current_email_confirm": "是否使用当前邮箱 (Y/n)",
+        "enter_new_email": "请输入新的邮箱地址",
+        "email_input": "邮箱地址",
+        "email_empty": "邮箱地址不能为空",
+        "enter_password": "请输入密码",
+        "password_input": "密码",
+        "password_empty": "密码不能为空",
+        "registration_success": "注册成功！",
+        "registration_failed": "注册失败，请稍后重试",
+        "found_confirm_input": "找到确认输入框",
+        "entering_delete_confirmation": "正在输入删除确认文字...",
+        "found_final_confirm_button": "找到最终确认按钮",
+        "clicking_final_confirm": "点击最终确认按钮",
+        "confirm_input_not_found": "未找到确认输入框",
+        "final_confirm_button_not_found": "未找到最终确认按钮"
     }
 } 

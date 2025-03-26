@@ -555,6 +555,22 @@
         "csrf_token_error": "Error getting CSRF token",
         "api_attempt": "API attempt ({attempt}/{max})",
         "api_attempt_failed": "API attempt failed",
-        "retrying": "Retrying in {seconds} seconds..."
+        "retrying": "Retrying in {seconds} seconds...",
+        "use_current_email": "Do you want to use the current email ({email}) to register?",
+        "use_current_email_confirm": "Use current email (Y/n)",
+        "enter_new_email": "Please enter a new email address",
+        "email_input": "Email address",
+        "email_empty": "Email address cannot be empty",
+        "enter_password": "Please enter a password",
+        "password_input": "Password",
+        "password_empty": "Password cannot be empty",
+        "registration_success": "Registration successful!",
+        "registration_failed": "Registration failed, please try again later",
+        "found_confirm_input": "Found confirmation input field",
+        "entering_delete_confirmation": "Entering delete confirmation text...",
+        "found_final_confirm_button": "Found final confirmation button",
+        "clicking_final_confirm": "Clicking final confirmation button",
+        "confirm_input_not_found": "Confirmation input field not found",
+        "final_confirm_button_not_found": "Final confirmation button not found"
     }
 }

@@ -156,21 +156,6 @@ class CursorOnlineAccountDeleter:
         try:
             print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('delete_account_online.deleting_account')}{Style.RESET_ALL}")
             
-            # 先尝试通过API直接删除
-            api_delete_success = self._delete_account_api()
-            
-            # 如果API删除成功，验证删除结果
-            if api_delete_success:
-                if self.verify_account_deletion():
-                    print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {self.translator.get('delete_account_online.api_delete_success')}{Style.RESET_ALL}")
-                    return True
-                else:
-                    print(f"{Fore.YELLOW}{EMOJI['WARNING']} {self.translator.get('delete_account_online.api_delete_unverified')}{Style.RESET_ALL}")
-            
-            # 如果API删除失败或验证失败，尝试通过UI删除
-            print(f"{Fore.YELLOW}{EMOJI['WARNING']} {self.translator.get('delete_account_online.api_delete_failed')}{Style.RESET_ALL}")
-            print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('delete_account_online.trying_ui_delete')}{Style.RESET_ALL}")
-            
             # 确保在设置页面
             if "settings" not in self.browser.url:
                 print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('delete_account_online.navigating_to_settings')}{Style.RESET_ALL}")
@@ -199,82 +184,57 @@ class CursorOnlineAccountDeleter:
             
             if not delete_btn:
                 print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('delete_account_online.delete_button_not_found')}{Style.RESET_ALL}")
-                print(f"{Fore.YELLOW}{EMOJI['WARNING']} {self.translator.get('delete_account_online.trying_javascript')}{Style.RESET_ALL}")
-                
-                # 尝试使用JavaScript创建删除按钮
-                js_create_button = """
-                document.body.insertAdjacentHTML('beforeend', '<button id="cursor-delete-account-btn" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: red; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; z-index: 9999;">Delete Cursor Account</button>');
-                document.getElementById('cursor-delete-account-btn').addEventListener('click', function() {
-                    fetch('https://www.cursor.com/api/dashboard/delete-account', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        credentials: 'include'
-                    }).then(response => {
-                        if (response.status === 200) {
-                            alert('Account deleted successfully!');
-                        } else {
-                            alert('Failed to delete account: ' + response.status);
-                        }
-                    }).catch(error => {
-                        alert('Error deleting account: ' + error);
-                    });
-                });
-                return 'Button created';
-                """
-                
-                try:
-                    result = self.browser.run_js(js_create_button)
-                    print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('delete_account_online.js_button_result')}: {result}{Style.RESET_ALL}")
-                    print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('delete_account_online.click_js_button')}{Style.RESET_ALL}")
-                    
-                    # 点击创建的按钮
-                    js_click_button = "document.getElementById('cursor-delete-account-btn').click(); return 'Button clicked';"
-                    click_result = self.browser.run_js(js_click_button)
-                    print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('delete_account_online.js_click_result')}: {click_result}{Style.RESET_ALL}")
-                    
-                    # 等待JS删除操作完成
-                    time.sleep(3)
-                    
-                    # 验证删除结果
-                    if self.verify_account_deletion():
-                        print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {self.translator.get('delete_account_online.js_delete_success')}{Style.RESET_ALL}")
-                        return True
-                    else:
-                        print(f"{Fore.YELLOW}{EMOJI['WARNING']} {self.translator.get('delete_account_online.js_delete_unverified')}{Style.RESET_ALL}")
-                        return False
-                    
-                except Exception as e:
-                    print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('delete_account_online.js_delete_failed')}: {str(e)}{Style.RESET_ALL}")
-                    return False
+                return False
             
-            # 找到删除按钮后点击
-            try:
-                print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('delete_account_online.clicking_delete_button')}{Style.RESET_ALL}")
-                delete_btn.click()
-                time.sleep(get_random_wait_time(self.config, 'page_load_wait'))
+            # 点击删除按钮
+            print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('delete_account_online.clicking_delete_button')}{Style.RESET_ALL}")
+            delete_btn.click()
+            time.sleep(get_random_wait_time(self.config, 'page_load_wait'))
+            
+            # 查找确认输入框
+            confirm_input_selectors = [
+                "//input[contains(@placeholder, 'delete')]",
+                "//input[contains(@placeholder, 'confirm')]",
+                "//div[contains(@class, 'modal')]//input"
+            ]
+            
+            confirm_input = None
+            for selector in confirm_input_selectors:
+                try:
+                    confirm_input = self.browser.ele(f"xpath:{selector}", timeout=2)
+                    if confirm_input and confirm_input.is_displayed():
+                        print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('delete_account_online.found_confirm_input')}{Style.RESET_ALL}")
+                        break
+                except:
+                    continue
+            
+            if confirm_input:
+                # 输入 "delete" 确认
+                print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('delete_account_online.entering_delete_confirmation')}{Style.RESET_ALL}")
+                confirm_input.click()
+                time.sleep(get_random_wait_time(self.config, 'user_action_wait', default=0.5))
+                confirm_input.input("delete")
+                time.sleep(get_random_wait_time(self.config, 'user_action_wait', default=0.5))
                 
-                # 查找并点击确认删除的按钮
-                confirm_selectors = [
-                    "//button[contains(text(), 'Confirm deletion')]",
-                    "//button[contains(text(), 'Confirm delete')]",
+                # 查找并点击最终确认按钮
+                confirm_button_selectors = [
+                    "//button[contains(text(), 'Confirm')]",
                     "//button[contains(text(), 'Delete')]",
-                    "//button[contains(text(), 'Yes')]",
-                    "//button[contains(@class, 'confirm') or contains(@class, 'danger')]",
                     "//div[contains(@class, 'modal')]//button[last()]"
                 ]
                 
                 confirm_btn = None
-                for selector in confirm_selectors:
+                for selector in confirm_button_selectors:
                     try:
                         confirm_btn = self.browser.ele(f"xpath:{selector}", timeout=2)
                         if confirm_btn and confirm_btn.is_displayed():
-                            print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('delete_account_online.found_confirm_button')}{Style.RESET_ALL}")
+                            print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('delete_account_online.found_final_confirm_button')}{Style.RESET_ALL}")
                             break
                     except:
                         continue
                 
                 if confirm_btn:
-                    print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('delete_account_online.clicking_confirm_button')}{Style.RESET_ALL}")
+                    print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('delete_account_online.clicking_final_confirm')}{Style.RESET_ALL}")
                     confirm_btn.click()
                     time.sleep(get_random_wait_time(self.config, 'page_load_wait'))
                     
@@ -284,23 +244,19 @@ class CursorOnlineAccountDeleter:
                         return True
                     else:
                         print(f"{Fore.YELLOW}{EMOJI['WARNING']} {self.translator.get('delete_account_online.ui_delete_unverified')}{Style.RESET_ALL}")
-                        return False
-                    
+                        # 尝试使用API作为备选方案
+                        return self._delete_account_api()
                 else:
-                    print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('delete_account_online.confirm_button_not_found')}{Style.RESET_ALL}")
-                    # 虽然没找到确认按钮，但可能初次点击就已经删除了，尝试验证
-                    if self.verify_account_deletion():
-                        print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {self.translator.get('delete_account_online.ui_delete_success')}{Style.RESET_ALL}")
-                        return True
+                    print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('delete_account_online.final_confirm_button_not_found')}{Style.RESET_ALL}")
                     return False
-                    
-            except Exception as e:
-                print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('delete_account_online.ui_delete_failed')}: {str(e)}{Style.RESET_ALL}")
+            else:
+                print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('delete_account_online.confirm_input_not_found')}{Style.RESET_ALL}")
                 return False
                 
         except Exception as e:
             print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('delete_account_online.delete_process_failed')}: {str(e)}{Style.RESET_ALL}")
-            return False
+            # 如果UI删除失败,尝试使用API作为备选方案
+            return self._delete_account_api()
             
     def _delete_account_api(self):
         """通过API删除账户"""
@@ -663,15 +619,52 @@ def run(translator=None):
         if delete_success:
             print(f"\n{Fore.GREEN}{EMOJI['SUCCESS']} {translator.get('delete_account_online.account_deleted')}{Style.RESET_ALL}")
             print(f"\n{Fore.CYAN}{EMOJI['INFO']} {translator.get('delete_account_online.register_prompt')}{Style.RESET_ALL}")
-            choice = input(f"{EMOJI['INFO']} {Fore.CYAN}{translator.get('delete_account_online.register_confirm', choices='Y/n')}: {Style.RESET_ALL}").lower()
             
-            if choice in ['', 'y', 'yes']:
-                print(f"\n{Fore.CYAN}{EMOJI['START']} {translator.get('delete_account_online.starting_registration')}{Style.RESET_ALL}")
-                # 调用注册功能
-                import cursor_register_manual
-                cursor_register_manual.main(translator)
+            # 获取当前账户邮箱
+            current_email = auth_info.get('email', '')
+            
+            # 询问是否使用当前账户邮箱重新注册
+            print(f"\n{Fore.CYAN}{EMOJI['INFO']} {translator.get('delete_account_online.use_current_email', email=current_email)}{Style.RESET_ALL}")
+            use_current_email = input(f"{EMOJI['INFO']} {Fore.CYAN}{translator.get('delete_account_online.use_current_email_confirm', choices='Y/n')}: {Style.RESET_ALL}").lower()
+            
+            if use_current_email in ['', 'y', 'yes']:
+                # 使用当前邮箱
+                email = current_email
             else:
-                print(f"\n{Fore.YELLOW}{EMOJI['INFO']} {translator.get('delete_account_online.registration_skipped')}{Style.RESET_ALL}")
+                # 让用户输入新的邮箱
+                print(f"\n{Fore.CYAN}{EMOJI['INFO']} {translator.get('delete_account_online.enter_new_email')}{Style.RESET_ALL}")
+                email = input(f"{EMOJI['INFO']} {Fore.CYAN}{translator.get('delete_account_online.email_input')}: {Style.RESET_ALL}").strip()
+                
+                if not email:
+                    print(f"\n{Fore.RED}{EMOJI['ERROR']} {translator.get('delete_account_online.email_empty')}{Style.RESET_ALL}")
+                    return
+            
+            # 让用户输入密码
+            print(f"\n{Fore.CYAN}{EMOJI['INFO']} {translator.get('delete_account_online.enter_password')}{Style.RESET_ALL}")
+            password = input(f"{EMOJI['INFO']} {Fore.CYAN}{translator.get('delete_account_online.password_input')}: {Style.RESET_ALL}").strip()
+            
+            if not password:
+                print(f"\n{Fore.RED}{EMOJI['ERROR']} {translator.get('delete_account_online.password_empty')}{Style.RESET_ALL}")
+                return
+            
+            print(f"\n{Fore.CYAN}{EMOJI['START']} {translator.get('delete_account_online.starting_registration')}{Style.RESET_ALL}")
+            
+            # 调用注册功能
+            from new_signup import main as new_signup_main
+            result, browser_tab = new_signup_main(
+                email=email,
+                password=password,
+                first_name=None,  # 将使用随机生成的名字
+                last_name=None,   # 将使用随机生成的姓氏
+                email_tab=None,   # 不需要邮箱标签页
+                controller=None,   # 不需要控制器
+                translator=translator
+            )
+            
+            if result:
+                print(f"\n{Fore.GREEN}{EMOJI['SUCCESS']} {translator.get('delete_account_online.registration_success')}{Style.RESET_ALL}")
+            else:
+                print(f"\n{Fore.RED}{EMOJI['ERROR']} {translator.get('delete_account_online.registration_failed')}{Style.RESET_ALL}")
         else:
             print(f"\n{Fore.RED}{EMOJI['ERROR']} {translator.get('delete_account_online.account_delete_failed')}{Style.RESET_ALL}")
             print(f"{Fore.YELLOW}{EMOJI['WARNING']} {translator.get('delete_account_online.manual_delete_required')}{Style.RESET_ALL}")

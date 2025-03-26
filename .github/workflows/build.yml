@@ -47,7 +47,9 @@ jobs:
     
     - name: Set version
       shell: bash
-      run: echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+      run: |
+        echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+        echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
     
     - name: Install dependencies
       run: |
@@ -62,8 +64,8 @@ jobs:
     - name: Upload Windows artifact
       uses: actions/upload-artifact@v4
       with:
-        name: CursorVIP_${{ env.VERSION }}_windows.exe
-        path: dist/CursorVIP_${{ env.VERSION }}_windows.exe
+        name: CursorVIP_${{ github.event.inputs.version }}_windows.exe
+        path: dist/CursorVIP_${{ github.event.inputs.version }}_windows.exe
 
   build-macos-arm64:
     needs: create-tag
@@ -90,13 +92,13 @@ jobs:
     - name: Build MacOS ARM executable
       run: |
         pyinstaller build.spec
-        mv "dist/CursorVIP_${{ env.VERSION }}_mac" "dist/CursorVIP_${{ env.VERSION }}_mac_arm64"
+        mv "dist/CursorVIP_${{ github.event.inputs.version }}_mac" "dist/CursorVIP_${{ github.event.inputs.version }}_mac_arm64"
 
     - name: Upload MacOS ARM artifact
       uses: actions/upload-artifact@v4
       with:
-        name: CursorVIP_${{ env.VERSION }}_mac_arm64
-        path: dist/CursorVIP_${{ env.VERSION }}_mac_arm64
+        name: CursorVIP_${{ github.event.inputs.version }}_mac_arm64
+        path: dist/CursorVIP_${{ github.event.inputs.version }}_mac_arm64
 
   build-linux-x64:
     needs: create-tag
@@ -121,19 +123,17 @@ jobs:
         pip install -r requirements.txt
         
     - name: Build Linux x64 executable
-      env:
-        VERSION: ${{ env.VERSION }}
       run: |
         pyinstaller build.spec
-        mv "dist/CursorVIP_${{ env.VERSION }}_linux" "dist/CursorVIP_${{ env.VERSION }}_linux_x64"
+        mv "dist/CursorVIP_${{ github.event.inputs.version }}_linux" "dist/CursorVIP_${{ github.event.inputs.version }}_linux_x64"
         echo "Contents of dist directory:"
         ls -la dist/
         
     - name: Upload Linux x64 artifact
       uses: actions/upload-artifact@v4
       with:
-        name: CursorVIP_${{ env.VERSION }}_linux_x64
-        path: dist/CursorVIP_${{ env.VERSION }}_linux_x64
+        name: CursorVIP_${{ github.event.inputs.version }}_linux_x64
+        path: dist/CursorVIP_${{ github.event.inputs.version }}_linux_x64
 
   build-linux-arm64:
     needs: create-tag
@@ -147,19 +147,15 @@ jobs:
       with:
         platforms: arm64
     
-    - name: Set version
-      shell: bash
-      run: echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
-    
     - name: Build in ARM64 Docker container
       run: |
-        docker run --rm --platform linux/arm64 -v ${{ github.workspace }}:/app -w /app -e VERSION=${{ env.VERSION }} arm64v8/python:3.9-slim bash -c "
+        docker run --rm --platform linux/arm64 -v ${{ github.workspace }}:/app -w /app -e VERSION=${{ github.event.inputs.version }} arm64v8/python:3.9-slim bash -c "
           apt-get update && apt-get install -y build-essential
           pip install --upgrade pip
           pip install pyinstaller
           pip install -r requirements.txt
           python -m PyInstaller build.spec
-          mv /app/dist/CursorVIP_\${VERSION}_linux /app/dist/CursorVIP_\${VERSION}_linux_arm64
+          mv /app/dist/CursorVIP_${VERSION}_linux /app/dist/CursorVIP_${VERSION}_linux_arm64
         "
         echo "Contents of dist directory:"
         ls -la dist/
@@ -167,8 +163,8 @@ jobs:
     - name: Upload Linux ARM64 artifact
       uses: actions/upload-artifact@v4
       with:
-        name: CursorVIP_${{ env.VERSION }}_linux_arm64
-        path: dist/CursorVIP_${{ env.VERSION }}_linux_arm64
+        name: CursorVIP_${{ github.event.inputs.version }}_linux_arm64
+        path: dist/CursorVIP_${{ github.event.inputs.version }}_linux_arm64
 
   build-macos-intel:
     needs: create-tag
@@ -195,16 +191,15 @@ jobs:
     - name: Build MacOS Intel executable
       env:
         TARGET_ARCH: 'x86_64'
-        VERSION: ${{ env.VERSION }}
       run: |
         arch -x86_64 python3 -m PyInstaller build.spec
-        mv "dist/CursorVIP_${{ env.VERSION }}_mac" "dist/CursorVIP_${{ env.VERSION }}_mac_intel"
+        mv "dist/CursorVIP_${{ github.event.inputs.version }}_mac" "dist/CursorVIP_${{ github.event.inputs.version }}_mac_intel"
         
     - name: Upload MacOS Intel artifact
       uses: actions/upload-artifact@v4
       with:
-        name: CursorVIP_${{ env.VERSION }}_mac_intel
-        path: dist/CursorVIP_${{ env.VERSION }}_mac_intel
+        name: CursorVIP_${{ github.event.inputs.version }}_mac_intel
+        path: dist/CursorVIP_${{ github.event.inputs.version }}_mac_intel
 
   create-release:
     needs: [build-windows, build-macos-arm64, build-linux-x64, build-linux-arm64, build-macos-intel]
@@ -231,13 +226,13 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ env.VERSION }}
+          tag_name: v${{ github.event.inputs.version }}
           files: |
-            artifacts/CursorVIP_${{ env.VERSION }}_windows.exe/CursorVIP_${{ env.VERSION }}_windows.exe
-            artifacts/CursorVIP_${{ env.VERSION }}_mac_arm64/CursorVIP_${{ env.VERSION }}_mac_arm64
-            artifacts/CursorVIP_${{ env.VERSION }}_linux_x64/CursorVIP_${{ env.VERSION }}_linux_x64
-            artifacts/CursorVIP_${{ env.VERSION }}_linux_arm64/CursorVIP_${{ env.VERSION }}_linux_arm64
-            artifacts/CursorVIP_${{ env.VERSION }}_mac_intel/CursorVIP_${{ env.VERSION }}_mac_intel
+            artifacts/CursorVIP_${{ github.event.inputs.version }}_windows.exe/CursorVIP_${{ github.event.inputs.version }}_windows.exe
+            artifacts/CursorVIP_${{ github.event.inputs.version }}_mac_arm64/CursorVIP_${{ github.event.inputs.version }}_mac_arm64
+            artifacts/CursorVIP_${{ github.event.inputs.version }}_linux_x64/CursorVIP_${{ github.event.inputs.version }}_linux_x64
+            artifacts/CursorVIP_${{ github.event.inputs.version }}_linux_arm64/CursorVIP_${{ github.event.inputs.version }}_linux_arm64
+            artifacts/CursorVIP_${{ github.event.inputs.version }}_mac_intel/CursorVIP_${{ github.event.inputs.version }}_mac_intel
           draft: false
           prerelease: false
         env:
