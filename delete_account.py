@@ -3,7 +3,6 @@ import sys
 import time
 import shutil
 import platform
-import json
 from colorama import Fore, Style, init
 from cursor_auth import CursorAuth
 from quit_cursor import quit_cursor
@@ -61,29 +60,34 @@ class CursorAccountDeleter:
             quit_cursor(self.translator)
             time.sleep(2)
             
-            # 删除认证信息
-            print(f"{Fore.CYAN}{EMOJI['DELETE']} {self.translator.get('delete_account.deleting_auth_info')}{Style.RESET_ALL}")
+            # 提示用户手动删除账户
+            print(f"\n{Fore.YELLOW}{EMOJI['INFO']} {self.translator.get('delete_account.manual_delete_prompt')}{Style.RESET_ALL}")
+            print(f"{Fore.YELLOW}{EMOJI['INFO']} {self.translator.get('delete_account.manual_delete_instructions')}{Style.RESET_ALL}")
+            
+            # 等待用户确认
+            input(f"\n{EMOJI['INFO']} {Fore.CYAN}{self.translator.get('delete_account.press_enter_to_continue')}{Style.RESET_ALL}")
+            
+            # 清理本地认证信息
+            print(f"{Fore.CYAN}{EMOJI['DELETE']} {self.translator.get('delete_account_online.deleting_auth')}...{Style.RESET_ALL}")
             auth_manager = CursorAuth(translator=self.translator)
-            
-            # 重置认证信息为空
-            if auth_manager.update_auth(email=None, access_token=None, refresh_token=None):
-                print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {self.translator.get('delete_account.auth_info_cleared')}{Style.RESET_ALL}")
-            else:
-                print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('delete_account.auth_info_clear_failed')}{Style.RESET_ALL}")
-            
+            if not auth_manager.delete_auth():
+                print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('delete_account_online.auth_deletion_failed')}{Style.RESET_ALL}")
+                return False
+                
             # 删除认证相关文件
+            print(f"{Fore.CYAN}{EMOJI['DELETE']} {self.translator.get('delete_account_online.deleting_auth_files')}...{Style.RESET_ALL}")
             self._delete_auth_files()
             
             # 重置机器ID
-            print(f"{Fore.CYAN}{EMOJI['RESET']} {self.translator.get('delete_account.resetting_machine_id')}{Style.RESET_ALL}")
+            print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('delete_account_online.resetting_machine_id')}...{Style.RESET_ALL}")
             resetter = MachineIDResetter(self.translator)
-            if resetter.reset_machine_ids():
-                print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {self.translator.get('delete_account.machine_id_reset_success')}{Style.RESET_ALL}")
-            else:
-                print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('delete_account.machine_id_reset_failed')}{Style.RESET_ALL}")
+            if not resetter.reset_machine_ids():
+                print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('delete_account_online.machine_id_reset_failed')}{Style.RESET_ALL}")
+                return False
                 
-            print(f"\n{Fore.GREEN}{EMOJI['SUCCESS']} {self.translator.get('delete_account.account_deletion_completed')}{Style.RESET_ALL}")
+            print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {self.translator.get('delete_account_online.completed')}{Style.RESET_ALL}")
             return True
+            
         except Exception as e:
             print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('delete_account.deletion_process_error', error=str(e))}{Style.RESET_ALL}")
             return False
@@ -212,7 +216,6 @@ def run(translator=None):
                     return
                 
                 # 调用注册功能，传递邮箱和密码
-                import cursor_register_manual
                 cursor_register_manual.main(translator, email=email_input, password=password)
             else:
                 # 使用原始注册流程
