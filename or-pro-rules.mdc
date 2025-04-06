@@ -1,0 +1,152 @@
+[33mcommit 58ce8656eacbb3abc6e56748defa49255657d081[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: suinian0309 <48237201+suinian0309@users.noreply.github.com>
+Date:   Sun Apr 6 22:50:28 2025 +0800
+
+    更新版本至1.9.00，新增多个被屏蔽域名，修改输出名称为CursorFreeVIP，更新配置文件路径，优化Chrome进程管理，移除不再使用的文件和功能，修复部分错误。
+
+[1mdiff --git a/.cursor/rules/cursor-pro-rules.mdc b/.cursor/rules/cursor-pro-rules.mdc[m
+[1mnew file mode 100644[m
+[1mindex 0000000..110cb89[m
+[1m--- /dev/null[m
+[1m+++ b/.cursor/rules/cursor-pro-rules.mdc[m
+[36m@@ -0,0 +1,66 @@[m
+[32m+[m[32m---[m
+[32m+[m[32mdescription:[m[41m [m
+[32m+[m[32mglobs:[m[41m [m
+[32m+[m[32malwaysApply: true[m
+[32m+[m[32m---[m
+[32m+[m[32m# Cursor Pro 规则指南[m
+[32m+[m
+[32m+[m[32m## 项目概述[m
+[32m+[m[32m本项目是 Cursor 编辑器的增强工具,提供账户管理、注册和重置等功能。[m
+[32m+[m
+[32m+[m[32m## 核心规则[m
+[32m+[m[32m- 每次修改代码前,必须先阅读本规则文档(cursor-pro-rules.mdc)[m
+[32m+[m[32m- 确保所有修改都符合项目规范和设计原则[m
+[32m+[m[32m- 代码变更须遵循最小修改原则,保持代码稳定性[m
+[32m+[m
+[32m+[m[32m## 核心功能[m
+[32m+[m[32m1. 账户管理[m
+[32m+[m[32m   - 注册新账户 (手动/Google/GitHub)[m
+[32m+[m[32m   - 删除账户[m
+[32m+[m[32m   - 重置机器 ID[m
+[32m+[m
+[32m+[m[32m2. 账户删除规则[m
+[32m+[m[32m   - 账户删除操作需要用户手动在官网执行[m
+[32m+[m[32m   - 本地操作仅清理认证信息和重置机器 ID[m
+[32m+[m[32m   - 不应使用浏览器自动化进行账户删除[m
+[32m+[m
+[32m+[m[32m3. 文件组织[m
+[32m+[m[32m   - `main.py`: 主程序入口[m
+[32m+[m[32m   - `cursor_auth.py`: 认证管理[m
+[32m+[m[32m   - `cursor_register_*.py`: 不同的注册方式[m
+[32m+[m[32m   - `delete_account.py`: 账户删除功能[m
+[32m+[m[32m   - `reset_machine_manual.py`: 机器 ID 重置[m
+[32m+[m
+[32m+[m[32m4. 构建规则[m
+[32m+[m[32m   - 使用 PyInstaller 打包[m
+[32m+[m[32m   - 包含所有必要依赖[m
+[32m+[m[32m   - 构建前必须安装: selenium, webdriver_manager[m
+[32m+[m
+[32m+[m[32m## 翻译与国际化[m
+[32m+[m[32m- 所有用户界面文本应使用翻译器系统[m
+[32m+[m[32m- 错误信息必须明确且可翻译[m
+[32m+[m
+[32m+[m[32m## 安全须知[m
+[32m+[m[32m- 不存储用户密码[m
+[32m+[m[32m- 清理操作应做好备份提示[m
+[32m+[m[32m- 重要操作必须有确认步骤[m
+[32m+[m
+[32m+[m[32m## 开发规范[m
+[32m+[m[32m- 函数应有清晰的注释说明[m
+[32m+[m[32m- 所有功能需有错误处理[m
+[32m+[m[32m- 保持与 Cursor 官方更新的兼容性[m
+[32m+[m
+[32m+[m[32m## 不兼容操作[m
+[32m+[m[32m- 不支持破解或绕过账户验证[m
+[32m+[m[32m- 不支持修改 Cursor 核心功能[m
+[32m+[m[32m- 不支持批量账户操作[m
+[32m+[m
+[32m+[m[32m## 用户界面准则[m
+[32m+[m[32m- 使用 emoji 增强可读性[m
+[32m+[m[32m- 操作步骤清晰可见[m
+[32m+[m[32m- 重要操作有颜色区分[m
+[32m+[m
+[32m+[m[32m## 测试要求[m
+[32m+[m[32m- 每次构建前测试主要功能[m
+[32m+[m[32m- 测试不同系统兼容性[m
+[32m+[m[32m- 验证翻译系统[m[41m [m
+\ No newline at end of file[m
+[1mdiff --git a/.env b/.env[m
+[1mindex 39229d2..ca53281 100644[m
+[1m--- a/.env[m
+[1m+++ b/.env[m
+[36m@@ -1,3 +1,2 @@[m
+[31m-version=1.8.09[m
+[31m-VERSION=1.8.09[m
+[31m-DEV_MODE=False[m
+\ No newline at end of file[m
+[32m+[m[32mversion=1.9.00[m
+[32m+[m[32mVERSION=1.9.00[m
+[1mdiff --git a/CHANGELOG.md b/CHANGELOG.md[m
+[1mindex 7a17dbf..d815a00 100644[m
+[1m--- a/CHANGELOG.md[m
+[1m+++ b/CHANGELOG.md[m
+[36m@@ -1,8 +1,177 @@[m
+ # Change Log[m
+[31m-## v1.8.00 ( Pre - Release 版本 )[m
+[31m-1. Fix: Totally Reset Cursor | 修复完全重置 Cursor[m
+ [m
+[31m-## v1.7.10 ( Pre - Release 版本 )[m
+[32m+[m[32m## v1.8.07[m
+[32m+[m[32m1. Add: Bypass Cursor Version Check | 添加繞過 Cursor 版本檢查[m
+[32m+[m[32m2. Add: Multilanguage support for bypass | 添加繞過的多語言支持[m
+[32m+[m[32m3. MSG: Free & free trial accounts can no longer use chat with premium models on Cursor Version 0.45 or less. Please upgrade to Pro or use Cursor Version 0.46 or later. Install Cursor at https://www.cursor.com/downloads or update from within the editor.[m
+[32m+[m[32m4. Fix: Some Issues | 修復一些問題[m
+[32m+[m
+[32m+[m[32m## v1.8.06[m
+[32m+[m[32m1. Add: Google Account Deletion Feature | 添加 Google 账号删除功能[m
+[32m+[m[32m2. Update: Menu with new account deletion option | 更新菜单添加账号删除选项[m
+[32m+[m[32m3. Add: Multilanguage support for account deletion | 添加账号删除功能的多语言支持[m
+[32m+[m[32m4. Fix: Improve usage limits check and tuple index error | 修复使用限制检查和元组索引错误[m
+[32m+[m[32m5. Fix: bug in disable cursor auto update | 修复禁用 Cursor 自动更新的错误[m
+[32m+[m[32m6. Fix: Linux-appimage | 修复 Linux-appimage 问题[m
+[32m+[m[32m7. Add: Support for custom Cursor installation paths on Windows | 添加 Windows 系统下自定义 Cursor 安装路径支持[m
+[32m+[m[32m8. Add: Chrome profile selection feature | 添加 Chrome 配置文件选择功能[m
+[32m+[m[32m9. Fix: improve account usage limit detection | 修復賬號檢測[m
+[32m+[m[32m10. Fix: For custom Chrome Installations | 修復自定義chrome遊覽器安裝[m
+[32m+[m
+[32m+[m[32m## v1.8.05[m
+[32m+[m[32m1. Fix: Linux Path Not Found ｜ 修復linuxpath問題[m
+[32m+[m[32m2. Add: support for detecting both 150/150 and 50/50 usage limits ｜ 添加偵測50 或者150的使用量[m
+[32m+[m[32m3. Improve: usage parsing and validation ｜ 檢測使用量[m
+[32m+[m
+[32m+[m[32m## v1.8.04[m
+[32m+[m[32m1. Update totally_reset_cursor.py | 更新 totally_reset_cursor.py[m
+[32m+[m[32m2. Fix: improve Linux Chrome visibility and root user handling | 修復 Linux Chrome 可見性以及 root 用戶處理[m
+[32m+[m[32m3. Fix: improve Linux path handling and fix permission issues | 修復 Linux 路徑處理以及修復權限問題[m
+[32m+[m[32m4. Fix: Some Issues | 修復一些問題[m
+[32m+[m
+[32m+[m[32m## v1.8.03[m
+[32m+[m[32m1. Fix: Improve Linux path handling and add case-insensitive Cursor directory detection ｜ 修復Linux系統路徑錯誤以及添加cursor 路徑偵測[m
+[32m+[m[32m2. Fix: Some Issues | 修復一些問題[m
+[32m+[m
+[32m+[m[32m## v1.8.02[m
+[32m+[m[32m1. Add: New Temp Email | 增加新臨時郵箱[m
+[32m+[m[32m2. Add: Config Options | 增加配置選項[m
+[32m+[m[32m3. Add: Update Windows Machine ID | 增加更新 Windows 機器 ID[m
+[32m+[m[32m4. Add: Contributors Options | 增加貢獻者選項[m
+[32m+[m[32m5. Add: Check update enable Options In config | 增加在 config 中檢查更新選項[m
+[32m+[m[32m6. Add: Show account info enabled options in config | 增加在 config 中顯示賬號信息選項[m
+[32m+[m[32m7. Optimize Row & Colume Options | 優化行與列選項[m
+[32m+[m[32m8. Fix: Too Many Free Trial On Some Machine | 修復某些機器上太多免費試用[m
+[32m+[m[32m9. Fix: Disable Auto Update | 修復禁用自動更新[m
+[32m+[m[32m10. Fix: Linux Chrome Not Open Correct | 修復 Linux Chrome 未正確打開[m
+[32m+[m[32m11. Fix: Some Issues | 修復一些問題[m
+[32m+[m
+[32m+[m[32m## v1.8.01[m
+[32m+[m[32m1. Add: Cursor Account Info | 增加 Cursor 賬號信息[m
+[32m+[m[32m2. Fix: Disable Auto Update | 修復禁用自動更新[m
+[32m+[m[32m3. Add: 0.48.x Version Support | 增加 0.48.x 版本支持[m
+[32m+[m[32m4. Revert: Totally Reser Cursor to Beta | 恢復完全重置 Cursor 到 Beta[m
+[32m+[m[32m5. Reopen: Totally Reset Curs
