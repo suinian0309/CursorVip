@@ -36,7 +36,7 @@ def get_cursor_paths(translator=None) -> Tuple[str, str]:
     
     # Read config file
     config = configparser.ConfigParser()
-    config_dir = os.path.join(get_user_documents_path(), ".cursor-free-vip")
+    config_dir = os.path.join(get_user_documents_path(), ".Cursorvip")
     config_file = os.path.join(config_dir, "config.ini")
     
     # Create config directory if it doesn't exist
@@ -141,7 +141,7 @@ def get_cursor_machine_id_path(translator=None) -> str:
         str: Path to machineId file
     """
     # Read configuration
-    config_dir = os.path.join(get_user_documents_path(), ".cursor-free-vip")
+    config_dir = os.path.join(get_user_documents_path(), ".Cursorvip")
     config_file = os.path.join(config_dir, "config.ini")
     config = configparser.ConfigParser()
     
@@ -181,7 +181,7 @@ def get_workbench_cursor_path(translator=None) -> str:
     system = platform.system()
 
     # Read configuration
-    config_dir = os.path.join(get_user_documents_path(), ".cursor-free-vip")
+    config_dir = os.path.join(get_user_documents_path(), ".Cursorvip")
     config_file = os.path.join(config_dir, "config.ini")
     config = configparser.ConfigParser()
 
@@ -482,7 +482,7 @@ class MachineIDResetter:
         self.translator = translator
 
         # Read configuration
-        config_dir = os.path.join(get_user_documents_path(), ".cursor-free-vip")
+        config_dir = os.path.join(get_user_documents_path(), ".Cursorvip")
         config_file = os.path.join(config_dir, "config.ini")
         config = configparser.ConfigParser()
         

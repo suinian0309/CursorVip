@@ -1,4 +1,4 @@
-# ➤ Cursor Free VIP
+# ➤ Cursorvip
 
 <div align="center">
 <p align="center">
@@ -107,7 +107,7 @@ If you want to stop the script, please press Ctrl+C<br>要停止脚本，请按 
 ## ❗ Note | 注意事項
 
 📝 Config | 文件配置
-`Win / Macos / Linux Path | 路径 [Documents/.cursor-free-vip/config.ini]`
+`Win / Macos / Linux Path | 路径 [Documents/.Cursorvip/config.ini]`
 <details>
 <summary><b>⭐ Config | 文件配置</b></summary>
 

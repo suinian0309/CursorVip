@@ -82,7 +82,7 @@ bingoohuang  mALIk-sHAHId  MFaiqKhan  httpmerak
 muhammedfurkan plamkatawe Lucaszmv
 """
 OTHER_INFO_TEXT = f"""{Fore.YELLOW}
-Github: https://github.com/yeongpin/cursor-free-vip{Fore.RED}
+Github: https://github.com/yeongpin/Cursorvip{Fore.RED}
 Press 8 to change language | 按下 8 键切换语言{Style.RESET_ALL}"""
 
 # center display LOGO and DESCRIPTION

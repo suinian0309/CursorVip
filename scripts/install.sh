@@ -85,7 +85,7 @@ detect_os() {
 # Install and download
 install_cursor_free_vip() {
     local downloads_dir=$(get_downloads_dir)
-    local binary_name="CursorFreeVIP_${VERSION}_${OS}"
+    local binary_name="CursorVIP_${VERSION}_${OS}"
     local binary_path="${downloads_dir}/${binary_name}"
     local download_url="https://github.com/suinian0309/cursorvip/releases/download/v${VERSION}/${binary_name}"
     
@@ -129,7 +129,7 @@ install_cursor_free_vip() {
         # Try without architecture
         if [[ "$OS" == "mac_arm64" || "$OS" == "mac_intel" ]]; then
             OS="mac"
-            binary_name="CursorFreeVIP_${VERSION}_${OS}"
+            binary_name="CursorVIP_${VERSION}_${OS}"
             download_url="https://github.com/suinian0309/cursorvip/releases/download/v${VERSION}/${binary_name}"
             echo -e "${CYAN}ℹ️ New download link: ${download_url}${NC}"
             
@@ -139,7 +139,7 @@ install_cursor_free_vip() {
             fi
         elif [[ "$OS" == "linux_x64" || "$OS" == "linux_arm64" ]]; then
             OS="linux"
-            binary_name="CursorFreeVIP_${VERSION}_${OS}"
+            binary_name="CursorVIP_${VERSION}_${OS}"
             download_url="https://github.com/suinian0309/cursorvip/releases/download/v${VERSION}/${binary_name}"
             echo -e "${CYAN}ℹ️ New download link: ${download_url}${NC}"
             

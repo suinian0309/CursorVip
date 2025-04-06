@@ -2,7 +2,7 @@
 Author: suinian0309 <48237201+suinian0309@users.noreply.github.com>
 Date:   Sun Apr 6 22:50:28 2025 +0800
 
-    更新版本至1.9.00，新增多个被屏蔽域名，修改输出名称为CursorFreeVIP，更新配置文件路径，优化Chrome进程管理，移除不再使用的文件和功能，修复部分错误。
+    更新版本至1.9.00，新增多个被屏蔽域名，修改输出名称为CursorVIP，更新配置文件路径，优化Chrome进程管理，移除不再使用的文件和功能，修复部分错误。
 
 [1mdiff --git a/.cursor/rules/cursor-pro-rules.mdc b/.cursor/rules/cursor-pro-rules.mdc[m
 [1mnew file mode 100644[m

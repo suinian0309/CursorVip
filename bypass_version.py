@@ -29,7 +29,7 @@ def get_product_json_path(translator=None):
     system = platform.system()
     
     # Read configuration
-    config_dir = os.path.join(get_user_documents_path(), ".cursor-free-vip")
+    config_dir = os.path.join(get_user_documents_path(), ".Cursorvip")
     config_file = os.path.join(config_dir, "config.ini")
     config = configparser.ConfigParser()
     

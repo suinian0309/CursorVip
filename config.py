@@ -19,7 +19,7 @@ EMOJI = {
 def setup_config(translator=None):
     """Setup configuration file and return config object"""
     try:
-        config_dir = os.path.join(get_user_documents_path(), ".cursor-free-vip")
+        config_dir = os.path.join(get_user_documents_path(), ".Cursorvip")
         config_file = os.path.join(config_dir, "config.ini")
         os.makedirs(config_dir, exist_ok=True)
         
@@ -252,7 +252,7 @@ def print_config(config, translator=None):
             print(f"  {key} = {value_display}")
     
     print(f"\n{Fore.CYAN}{'─' * 70}{Style.RESET_ALL}")
-    config_dir = os.path.join(get_user_documents_path(), ".cursor-free-vip", "config.ini")
+    config_dir = os.path.join(get_user_documents_path(), ".Cursorvip", "config.ini")
     print(f"{Fore.CYAN}{EMOJI['INFO']} {translator.get('config.config_directory') if translator else 'Config Directory'}: {config_dir}{Style.RESET_ALL}")
 
     print()  
