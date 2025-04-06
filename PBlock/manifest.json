@@ -3,7 +3,7 @@
   "version": "0.1",
   "manifest_version": 3,
   "author": "suinian0309",
-  "url": "https://github.com/suinian0309/CursorVip",
+  "url": "https://github.com/suinian0309/PBlock",
   "description": "Just a simple blocker.",
   "action": {
     "default_icon": "enabled48.png"

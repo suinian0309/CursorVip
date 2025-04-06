@@ -12,16 +12,32 @@ from config import get_config
 # Add global variable at the beginning of the file
 _translator = None
 
+# Add global variable to track our Chrome processes
+_chrome_process_ids = []
+
 def cleanup_chrome_processes(translator=None):
-    """Clean all Chrome related processes"""
-    print("\nCleaning Chrome processes...")
+    """Clean only Chrome processes launched by this script"""
+    global _chrome_process_ids
+    
+    if not _chrome_process_ids:
+        print("\nNo Chrome processes to clean...")
+        return
+        
+    print("\nCleaning Chrome processes launched by this script...")
     try:
         if os.name == 'nt':
-            os.system('taskkill /F /IM chrome.exe /T 2>nul')
-            os.system('taskkill /F /IM chromedriver.exe /T 2>nul')
+            for pid in _chrome_process_ids:
+                try:
+                    os.system(f'taskkill /F /PID {pid} /T 2>nul')
+                except:
+                    pass
         else:
-            os.system('pkill -f chrome')
-            os.system('pkill -f chromedriver')
+            for pid in _chrome_process_ids:
+                try:
+                    os.kill(pid, signal.SIGTERM)
+                except:
+                    pass
+        _chrome_process_ids = []  # Reset the list after cleanup
     except Exception as e:
         if translator:
             print(f"{Fore.RED}❌ {translator.get('register.cleanup_error', error=str(e))}{Style.RESET_ALL}")
@@ -164,6 +180,8 @@ def get_random_wait_time(config, timing_type='page_load_wait'):
 
 def setup_driver(translator=None):
     """Setup browser driver"""
+    global _chrome_process_ids
+    
     try:
         # Get config
         config = get_config(translator)
@@ -185,9 +203,10 @@ def setup_driver(translator=None):
         # Use incognito mode
         co.set_argument("--incognito")
 
-        # Set random port
-        co.set_argument("--no-sandbox")
-        
+        if sys.platform == "linux":
+            # Set random port
+            co.set_argument("--no-sandbox")
+            
         # Set random port
         co.auto_port()
         
@@ -211,7 +230,35 @@ def setup_driver(translator=None):
         else:
             print("Starting browser...")
         
+        # Record Chrome processes before launching
+        before_pids = []
+        try:
+            import psutil
+            before_pids = [p.pid for p in psutil.process_iter() if 'chrome' in p.name().lower()]
+        except:
+            pass
+            
+        # Launch browser
         page = ChromiumPage(co)
+        
+        # Wait a moment for Chrome to fully launch
+        time.sleep(1)
+        
+        # Record Chrome processes after launching and find new ones
+        try:
+            import psutil
+            after_pids = [p.pid for p in psutil.process_iter() if 'chrome' in p.name().lower()]
+            # Find new Chrome processes
+            new_pids = [pid for pid in after_pids if pid not in before_pids]
+            _chrome_process_ids.extend(new_pids)
+            
+            if _chrome_process_ids:
+                print(f"Tracking {len(_chrome_process_ids)} Chrome processes")
+            else:
+                print(f"{Fore.YELLOW}Warning: No new Chrome processes detected to track{Style.RESET_ALL}")
+        except Exception as e:
+            print(f"Warning: Could not track Chrome processes: {e}")
+            
         return config, page
 
     except Exception as e:
@@ -563,7 +610,9 @@ def handle_sign_in(browser_tab, email, password, translator=None):
 def main(email=None, password=None, first_name=None, last_name=None, email_tab=None, controller=None, translator=None):
     """Main function, can receive account information, email tab, and translator"""
     global _translator
+    global _chrome_process_ids
     _translator = translator  # Save to global variable
+    _chrome_process_ids = []  # Reset the process IDs list
     
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)

@@ -9,14 +9,14 @@ import locale
 import platform
 import requests
 import subprocess
-from config import get_config  
-import time
+from config import get_config
 import shutil
+import re
 
 # Only import windll on Windows systems
 if platform.system() == 'Windows':
     import ctypes
-    # 只在 Windows 上导入 windll
+    # Only import windll on Windows systems
     from ctypes import windll
 
 # Initialize colorama
@@ -35,9 +35,12 @@ EMOJI = {
     "LANG": "🌐",
     "UPDATE": "🔄",
     "ADMIN": "🔐",
-    "GROUP": "🤖",
-    "DELETE": "🗑️",
-    "LIFETIME": "🔥",
+    "AIRDROP": "💰",
+    "ROCKET": "🚀",
+    "STAR": "⭐",
+    "SUN": "🌟",
+    "CONTRIBUTE": "🤝",
+    "SETTINGS": "⚙️"
 }
 
 # Function to check if running as frozen executable
@@ -113,6 +116,9 @@ class Translator:
                 0x0404: 'zh_tw',   # Traditional Chinese
                 0x0804: 'zh_cn',   # Simplified Chinese
                 0x0422: 'vi',      # Vietnamese
+                0x0419: 'ru',      # Russian
+                0x0415: 'tr',      # Turkish
+                0x0402: 'bg',      # Bulgarian
             }
             
             return language_map.get(layout_id, 'en')
@@ -138,8 +144,20 @@ class Translator:
                 return 'en'
             elif system_locale.startswith('vi'):
                 return 'vi'
-            
-
+            elif system_locale.startswith('nl'):
+                return 'nl'
+            elif system_locale.startswith('de'):
+                return 'de'
+            elif system_locale.startswith('fr'):
+                return 'fr'
+            elif system_locale.startswith('pt'):
+                return 'pt'
+            elif system_locale.startswith('ru'):
+                return 'ru'
+            elif system_locale.startswith('tr'):
+                return 'tr'
+            elif system_locale.startswith('bg'):
+                return 'bg'
             # Try to get language from LANG environment variable as fallback
             env_lang = os.getenv('LANG', '').lower()
             if 'tw' in env_lang or 'hk' in env_lang:
@@ -148,7 +166,20 @@ class Translator:
                 return 'zh_cn'
             elif 'vi' in env_lang:
                 return 'vi'
-            
+            elif 'nl' in env_lang:
+                return 'nl'
+            elif 'de' in env_lang:
+                return 'de'
+            elif 'fr' in env_lang:
+                return 'fr'
+            elif 'pt' in env_lang:
+                return 'pt'
+            elif 'ru' in env_lang:
+                return 'ru'
+            elif 'tr' in env_lang:
+                return 'tr'
+            elif 'bg' in env_lang:
+                return 'bg'
 
             return 'en'
         except:
@@ -219,23 +250,114 @@ translator = Translator()
 
 def print_menu():
     """Print menu options"""
+    try:
+        config = get_config()
+        if config.getboolean('Utils', 'enabled_account_info'):
+            import cursor_acc_info
+            cursor_acc_info.display_account_info(translator)
+    except Exception as e:
+        print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('menu.account_info_error', error=str(e))}{Style.RESET_ALL}")
+    
     print(f"\n{Fore.CYAN}{EMOJI['MENU']} {translator.get('menu.title')}:{Style.RESET_ALL}")
-    print(f"{Fore.YELLOW}{'─' * 40}{Style.RESET_ALL}")
-    print(f"{Fore.GREEN}0{Style.RESET_ALL}. {EMOJI['ERROR']} {translator.get('menu.exit')}")
-    print(f"{Fore.GREEN}1{Style.RESET_ALL}. {EMOJI['RESET']} {translator.get('menu.reset')}")
-    print(f"{Fore.GREEN}2{Style.RESET_ALL}. {EMOJI['LIFETIME']} {translator.get('menu.delete_and_register')}")
-    print(f"{Fore.GREEN}3{Style.RESET_ALL}. 🌟 {translator.get('menu.register_google')}")
-    print(f"{Fore.YELLOW}   ┗━━ 🔥 {translator.get('menu.lifetime_access_enabled')} 🔥{Style.RESET_ALL}")
-    print(f"{Fore.GREEN}4{Style.RESET_ALL}. ⭐ {translator.get('menu.register_github')}")
-    print(f"{Fore.YELLOW}   ┗━━ 🚀 {translator.get('menu.lifetime_access_enabled')} 🚀{Style.RESET_ALL}")
-    print(f"{Fore.GREEN}5{Style.RESET_ALL}. {EMOJI['SUCCESS']} {translator.get('menu.register_manual')}")
-    print(f"{Fore.GREEN}6{Style.RESET_ALL}. {EMOJI['ERROR']} {translator.get('menu.quit')}")
-    print(f"{Fore.GREEN}7{Style.RESET_ALL}. {EMOJI['LANG']} {translator.get('menu.select_language')}")
-    print(f"{Fore.GREEN}8{Style.RESET_ALL}. {EMOJI['UPDATE']} {translator.get('menu.disable_auto_update')}")
-    print(f"{Fore.GREEN}9{Style.RESET_ALL}. {EMOJI['RESET']} {translator.get('menu.totally_reset')}")
-    print(f"{Fore.GREEN}10{Style.RESET_ALL}. {EMOJI['GROUP']} {translator.get('menu.join_group')}")
-    print(f"{Fore.GREEN}11{Style.RESET_ALL}. {EMOJI['DELETE']} {translator.get('menu.delete_account_online')}")
-    print(f"{Fore.YELLOW}{'─' * 40}{Style.RESET_ALL}")
+    if translator.current_language == 'zh_cn' or translator.current_language == 'zh_tw':
+        print(f"{Fore.YELLOW}{'─' * 70}{Style.RESET_ALL}")
+    else:
+        print(f"{Fore.YELLOW}{'─' * 110}{Style.RESET_ALL}")
+    
+    # Get terminal width
+    try:
+        terminal_width = shutil.get_terminal_size().columns
+    except:
+        terminal_width = 80  # Default width
+    
+    # Define all menu items
+    menu_items = {
+        0: f"{Fore.GREEN}0{Style.RESET_ALL}. {EMOJI['ERROR']} {translator.get('menu.exit')}",
+        1: f"{Fore.GREEN}1{Style.RESET_ALL}. {EMOJI['RESET']} {translator.get('menu.reset')}",
+        2: f"{Fore.GREEN}2{Style.RESET_ALL}. {EMOJI['SUCCESS']} {translator.get('menu.register')} ({Fore.RED}{translator.get('menu.outdate')}{Style.RESET_ALL})",
+        3: f"{Fore.GREEN}3{Style.RESET_ALL}. {EMOJI['SUN']} {translator.get('menu.register_google')} {EMOJI['ROCKET']} ({Fore.YELLOW}{translator.get('menu.lifetime_access_enabled')} ({Fore.RED}{translator.get('menu.outdate')}{Style.RESET_ALL}))",
+        4: f"{Fore.GREEN}4{Style.RESET_ALL}. {EMOJI['STAR']} {translator.get('menu.register_github')} {EMOJI['ROCKET']} ({Fore.YELLOW}{translator.get('menu.lifetime_access_enabled')} ({Fore.RED}{translator.get('menu.outdate')}{Style.RESET_ALL}))",
+        5: f"{Fore.GREEN}5{Style.RESET_ALL}. {EMOJI['SUCCESS']} {translator.get('menu.register_manual')}",
+        6: f"{Fore.GREEN}6{Style.RESET_ALL}. {EMOJI['RESET']} {translator.get('menu.temp_github_register')}",
+        7: f"{Fore.GREEN}7{Style.RESET_ALL}. {EMOJI['ERROR']} {translator.get('menu.quit')}",
+        8: f"{Fore.GREEN}8{Style.RESET_ALL}. {EMOJI['LANG']} {translator.get('menu.select_language')}",
+        9: f"{Fore.GREEN}9{Style.RESET_ALL}. {EMOJI['UPDATE']} {translator.get('menu.disable_auto_update')}",
+        10: f"{Fore.GREEN}10{Style.RESET_ALL}. {EMOJI['RESET']} {translator.get('menu.totally_reset')}",
+        11: f"{Fore.GREEN}11{Style.RESET_ALL}. {EMOJI['CONTRIBUTE']} {translator.get('menu.contribute')}",
+        12: f"{Fore.GREEN}12{Style.RESET_ALL}. {EMOJI['SETTINGS']}  {translator.get('menu.config')}",
+        13: f"{Fore.GREEN}13{Style.RESET_ALL}. {EMOJI['SETTINGS']}  {translator.get('menu.select_chrome_profile')}",
+        14: f"{Fore.GREEN}14{Style.RESET_ALL}. {EMOJI['ERROR']}  {translator.get('menu.delete_google_account', fallback='Delete Cursor Google Account')}",
+        15: f"{Fore.GREEN}15{Style.RESET_ALL}. {EMOJI['UPDATE']}  {translator.get('menu.bypass_version_check', fallback='Bypass Cursor Version Check')}"
+    }
+    
+    # Automatically calculate the number of menu items in the left and right columns
+    total_items = len(menu_items)
+    left_column_count = (total_items + 1) // 2  # The number of options displayed on the left (rounded up)
+    
+    # Build left and right columns of menus
+    sorted_indices = sorted(menu_items.keys())
+    left_menu = [menu_items[i] for i in sorted_indices[:left_column_count]]
+    right_menu = [menu_items[i] for i in sorted_indices[left_column_count:]]
+    
+    # Calculate the maximum display width of left menu items
+    ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+    
+    def get_display_width(s):
+        """Calculate the display width of a string, considering Chinese characters and emojis"""
+        # Remove ANSI color codes
+        clean_s = ansi_escape.sub('', s)
+        width = 0
+        for c in clean_s:
+            # Chinese characters and some emojis occupy two character widths
+            if ord(c) > 127:
+                width += 2
+            else:
+                width += 1
+        return width
+    
+    max_left_width = 0
+    for item in left_menu:
+        width = get_display_width(item)
+        max_left_width = max(max_left_width, width)
+    
+    # Set the starting position of right menu
+    fixed_spacing = 4  # Fixed spacing
+    right_start = max_left_width + fixed_spacing
+    
+    # Calculate the number of spaces needed for right menu items
+    spaces_list = []
+    for i in range(len(left_menu)):
+        if i < len(left_menu):
+            left_item = left_menu[i]
+            left_width = get_display_width(left_item)
+            spaces = right_start - left_width
+            spaces_list.append(spaces)
+    
+    # Print menu items
+    max_rows = max(len(left_menu), len(right_menu))
+    
+    for i in range(max_rows):
+        # Print left menu items
+        if i < len(left_menu):
+            left_item = left_menu[i]
+            print(left_item, end='')
+            
+            # Use pre-calculated spaces
+            spaces = spaces_list[i]
+        else:
+            # If left side has no items, print only spaces
+            spaces = right_start
+            print('', end='')
+        
+        # Print right menu items
+        if i < len(right_menu):
+            print(' ' * spaces + right_menu[i])
+        else:
+            print()  # Change line
+    if translator.current_language == 'zh_cn' or translator.current_language == 'zh_tw':
+        print(f"{Fore.YELLOW}{'─' * 70}{Style.RESET_ALL}")
+    else:
+        print(f"{Fore.YELLOW}{'─' * 110}{Style.RESET_ALL}")
 
 def select_language():
     """Language selection menu"""
@@ -259,46 +381,26 @@ def select_language():
         print(f"{Fore.RED}{EMOJI['ERROR']} {translator.get('menu.invalid_choice')}{Style.RESET_ALL}")
         return False
 
-def check_latest_version(force_update=True):
-    """Check if current version matches the latest release version and update automatically if needed"""
-    # 使用静态文件作为更新锁，避免重复更新
-    update_lock_file = os.path.join(os.path.dirname(os.path.abspath(sys.executable if getattr(sys, 'frozen', False) else __file__)), ".update_in_progress")
-    
-    # 如果更新锁存在且创建时间不超过10分钟，表示更新正在进行中，避免重复启动更新
-    if os.path.exists(update_lock_file):
-        try:
-            file_age = time.time() - os.path.getmtime(update_lock_file)
-            if file_age < 600:  # 10分钟内
-                print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.update_in_progress')}{Style.RESET_ALL}")
-                return
-            else:
-                # 锁文件太旧，可能是之前更新失败，删除它
-                os.remove(update_lock_file)
-        except Exception:
-            # 忽略删除错误，继续检查更新
-            pass
-    
+def check_latest_version():
+    """Check if current version matches the latest release version"""
     try:
         print(f"\n{Fore.CYAN}{EMOJI['UPDATE']} {translator.get('updater.checking')}{Style.RESET_ALL}")
-        
-        # 创建更新锁文件
-        try:
-            with open(update_lock_file, 'w') as f:
-                f.write(str(time.time()))
-        except Exception:
-            # 如果无法创建锁文件，继续检查但记录警告
-            print(f"{Fore.YELLOW}{EMOJI['WARNING']} {translator.get('updater.cannot_create_lock')}{Style.RESET_ALL}")
         
         # Get latest version from GitHub API with timeout and proper headers
         headers = {
             'Accept': 'application/vnd.github.v3+json',
-            'User-Agent': 'CursorVIP-Updater'
+            'User-Agent': 'CursorFreeVIP-Updater'
         }
         response = requests.get(
-            "https://api.github.com/repos/suinian0309/CursorVip/releases/latest",        
+            "https://api.github.com/repos/suinian0309/cursorvip/releases/latest",
             headers=headers,
             timeout=10
         )
+        
+        # Check if rate limit exceeded
+        if response.status_code == 403 and "rate limit exceeded" in response.text.lower():
+            print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.rate_limit_exceeded', fallback='GitHub API rate limit exceeded. Skipping update check.')}{Style.RESET_ALL}")
+            return
         
         # Check if response is successful
         if response.status_code != 200:
@@ -337,49 +439,68 @@ def check_latest_version(force_update=True):
         if is_newer_version_available:
             print(f"\n{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.new_version_available', current=version, latest=latest_version)}{Style.RESET_ALL}")
             
-            # 强制更新，不询问用户
-            print(f"\n{Fore.GREEN}{EMOJI['UPDATE']} {translator.get('updater.auto_updating')}{Style.RESET_ALL}")
+            # get and show changelog
+            try:
+                changelog_url = "https://raw.githubusercontent.com/suinian0309/cursorvip/main/CHANGELOG.md"
+                changelog_response = requests.get(changelog_url, timeout=10)
+                
+                if changelog_response.status_code == 200:
+                    changelog_content = changelog_response.text
+                    
+                    # get latest version changelog
+                    latest_version_pattern = f"## v{latest_version}"
+                    changelog_sections = changelog_content.split("## v")
+                    
+                    latest_changes = None
+                    for section in changelog_sections:
+                        if section.startswith(latest_version):
+                            latest_changes = section
+                            break
+                    
+                    if latest_changes:
+                        print(f"\n{Fore.CYAN}{'─' * 40}{Style.RESET_ALL}")
+                        print(f"{Fore.CYAN}{translator.get('updater.changelog_title')}:{Style.RESET_ALL}")
+                        
+                        # show changelog content (max 10 lines)
+                        changes_lines = latest_changes.strip().split('\n')
+                        for i, line in enumerate(changes_lines[1:11]):  # skip version number line, max 10 lines
+                            if line.strip():
+                                print(f"{Fore.WHITE}{line.strip()}{Style.RESET_ALL}")
+                        
+                        # if changelog more than 10 lines, show ellipsis
+                        if len(changes_lines) > 11:
+                            print(f"{Fore.WHITE}...{Style.RESET_ALL}")
+                        
+                        print(f"{Fore.CYAN}{'─' * 40}{Style.RESET_ALL}")
+            except Exception as changelog_error:
+                # get changelog failed
+                pass
+            
+            # Ask user if they want to update
+            while True:
+                choice = input(f"\n{EMOJI['ARROW']} {Fore.CYAN}{translator.get('updater.update_confirm', choices='Y/n')}: {Style.RESET_ALL}").lower()
+                if choice in ['', 'y', 'yes']:
+                    break
+                elif choice in ['n', 'no']:
+                    print(f"\n{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.update_skipped')}{Style.RESET_ALL}")
+                    return
+                else:
+                    print(f"{Fore.RED}{EMOJI['ERROR']} {translator.get('menu.invalid_choice')}{Style.RESET_ALL}")
             
             try:
-                # Create progress bar
-                print(f"{Fore.CYAN}{translator.get('updater.preparing_download')}{Style.RESET_ALL}")
-                
                 # Execute update command based on platform
                 if platform.system() == 'Windows':
-                    update_command = 'irm https://raw.githubusercontent.com/suinian0309/CursorVip/main/scripts/install.ps1 | iex'
-                    print(f"{Fore.CYAN}{translator.get('updater.downloading')}{Style.RESET_ALL}")
-                    
-                    # Create a dynamic progress bar
-                    for i in range(10):
-                        progress = "■" * i + "□" * (10 - i)
-                        sys.stdout.write(f"\r{Fore.CYAN}{translator.get('updater.download_progress', progress=progress, percent=i*10)}%{Style.RESET_ALL}")
-                        sys.stdout.flush()
-                        time.sleep(0.3)
-                    print(f"\r{Fore.CYAN}{translator.get('updater.download_progress', progress='■■■■■■■■■■', percent=100)}%{Style.RESET_ALL}")
-                    
-                    print(f"{Fore.CYAN}{translator.get('updater.installing')}{Style.RESET_ALL}")
+                    update_command = 'irm https://raw.githubusercontent.com/suinian0309/cursorvip/main/scripts/install.ps1 | iex'
                     subprocess.run(['powershell', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', update_command], check=True)
                 else:
                     # For Linux/Mac, download and execute the install script
-                    install_script_url = 'https://raw.githubusercontent.com/suinian0309/CursorVip/main/scripts/install.sh' 
+                    install_script_url = 'https://raw.githubusercontent.com/suinian0309/cursorvip/main/scripts/install.sh'
                     
                     # First verify the script exists
                     script_response = requests.get(install_script_url, timeout=5)
                     if script_response.status_code != 200:
                         raise Exception("Installation script not found")
-                    
-                    print(f"{Fore.CYAN}{translator.get('updater.downloading')}{Style.RESET_ALL}")
-                    
-                    # Create a dynamic progress bar
-                    for i in range(10):
-                        progress = "■" * i + "□" * (10 - i)
-                        sys.stdout.write(f"\r{Fore.CYAN}{translator.get('updater.download_progress', progress=progress, percent=i*10)}%{Style.RESET_ALL}")
-                        sys.stdout.flush()
-                        time.sleep(0.3)
-                    print(f"\r{Fore.CYAN}{translator.get('updater.download_progress', progress='■■■■■■■■■■', percent=100)}%{Style.RESET_ALL}")
-                    
-                    print(f"{Fore.CYAN}{translator.get('updater.installing')}{Style.RESET_ALL}")
-                    
+                        
                     # Save and execute the script
                     with open('install.sh', 'wb') as f:
                         f.write(script_response.content)
@@ -392,96 +513,12 @@ def check_latest_version(force_update=True):
                         os.remove('install.sh')
                 
                 print(f"\n{Fore.GREEN}{EMOJI['SUCCESS']} {translator.get('updater.updating')}{Style.RESET_ALL}")
-                
-                # 删除更新锁文件
-                if os.path.exists(update_lock_file):
-                    try:
-                        os.remove(update_lock_file)
-                    except Exception:
-                        pass
-                
                 sys.exit(0)
                 
             except Exception as update_error:
                 print(f"{Fore.RED}{EMOJI['ERROR']} {translator.get('updater.update_failed', error=str(update_error))}{Style.RESET_ALL}")
-                print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.recovery_attempt')}{Style.RESET_ALL}")
-                
-                # Try a recovery method
-                try:
-                    recovery_successful = False
-                    
-                    # Check if there's a cached installer and try to run it directly
-                    if platform.system() == 'Windows':
-                        downloads_path = os.path.join(os.path.expanduser('~'), 'Downloads')
-                        cached_installer = os.path.join(downloads_path, f"CursorVIP_{latest_version}_windows.exe")
-                        
-                        if os.path.exists(cached_installer):
-                            print(f"{Fore.CYAN}{EMOJI['INFO']} {translator.get('updater.found_cached_installer')}{Style.RESET_ALL}")
-                            subprocess.Popen(cached_installer)
-                            recovery_successful = True
-                            
-                            # 删除更新锁文件
-                            if os.path.exists(update_lock_file):
-                                try:
-                                    os.remove(update_lock_file)
-                                except Exception:
-                                    pass
-                                    
-                            sys.exit(0)
-                    
-                    if not recovery_successful:
-                        # 创建重试计数文件
-                        retry_count_file = os.path.join(os.path.dirname(os.path.abspath(sys.executable if getattr(sys, 'frozen', False) else __file__)), ".update_retry_count")
-                        retry_count = 0
-                        
-                        if os.path.exists(retry_count_file):
-                            try:
-                                with open(retry_count_file, 'r') as f:
-                                    retry_count = int(f.read().strip() or '0')
-                            except Exception:
-                                retry_count = 0
-                        
-                        # 如果重试次数超过3次，则提示用户手动更新
-                        if retry_count >= 3:
-                            print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.manual_update_required')}{Style.RESET_ALL}")
-                            # 重置重试计数
-                            try:
-                                with open(retry_count_file, 'w') as f:
-                                    f.write('0')
-                            except Exception:
-                                pass
-                        else:
-                            # 增加重试计数
-                            retry_count += 1
-                            try:
-                                with open(retry_count_file, 'w') as f:
-                                    f.write(str(retry_count))
-                            except Exception:
-                                pass
-                            
-                            print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.retry_later', count=retry_count)}{Style.RESET_ALL}")
-                        
-                        # 删除更新锁文件
-                        if os.path.exists(update_lock_file):
-                            try:
-                                os.remove(update_lock_file)
-                            except Exception:
-                                pass
-                        
-                        return
-                        
-                except Exception as recovery_error:
-                    print(f"{Fore.RED}{EMOJI['ERROR']} {translator.get('updater.recovery_failed', error=str(recovery_error))}{Style.RESET_ALL}")
-                    print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.manual_update_required')}{Style.RESET_ALL}")
-                    
-                    # 删除更新锁文件
-                    if os.path.exists(update_lock_file):
-                        try:
-                            os.remove(update_lock_file)
-                        except Exception:
-                            pass
-                    
-                    return
+                print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.manual_update_required')}{Style.RESET_ALL}")
+                return
         else:
             # If current version is newer or equal to latest version
             if current_version_tuple > latest_version_tuple:
@@ -489,268 +526,41 @@ def check_latest_version(force_update=True):
             else:
                 print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {translator.get('updater.up_to_date')}{Style.RESET_ALL}")
             
-            # 删除更新锁文件
-            if os.path.exists(update_lock_file):
-                try:
-                    os.remove(update_lock_file)
-                except Exception:
-                    pass
-            
     except requests.exceptions.RequestException as e:
         print(f"{Fore.RED}{EMOJI['ERROR']} {translator.get('updater.network_error', error=str(e))}{Style.RESET_ALL}")
         print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.continue_anyway')}{Style.RESET_ALL}")
-        
-        # 删除更新锁文件
-        if os.path.exists(update_lock_file):
-            try:
-                os.remove(update_lock_file)
-            except Exception:
-                pass
-        
         return
         
     except Exception as e:
         print(f"{Fore.RED}{EMOJI['ERROR']} {translator.get('updater.check_failed', error=str(e))}{Style.RESET_ALL}")
         print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.continue_anyway')}{Style.RESET_ALL}")
-        
-        # 删除更新锁文件
-        if os.path.exists(update_lock_file):
-            try:
-                os.remove(update_lock_file)
-            except Exception:
-                pass
-        
         return
-
-def check_and_remove_old_versions():
-    """Check for and remove old versions of the application in the same directory"""
-    try:
-        # Get current executable path
-        if getattr(sys, 'frozen', False):
-            # Running as executable
-            current_exe_path = sys.executable
-        else:
-            # Running in development mode, use a placeholder
-            current_exe_path = os.path.abspath(__file__)
-            print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.dev_mode_no_uninstall')}{Style.RESET_ALL}")
-            return False
-            
-        # Extract current version from filename
-        current_filename = os.path.basename(current_exe_path)
-        if 'CursorVIP_' not in current_filename:
-            print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.non_standard_filename')}{Style.RESET_ALL}")
-            return False
-            
-        # Notify user about automatic uninstallation
-        print(f"\n{Fore.CYAN}{EMOJI['INFO']} {translator.get('updater.old_version_cleanup')}{Style.RESET_ALL}")
-        print(f"{Fore.CYAN}{translator.get('updater.uninstall_countdown')}{Style.RESET_ALL}")
-        
-        # Countdown
-        for i in range(3, 0, -1):
-            print(f"{Fore.YELLOW}{translator.get('updater.countdown_timer', seconds=i)}{Style.RESET_ALL}")
-            time.sleep(1)
-            
-        # Get current directory
-        current_dir = os.path.dirname(current_exe_path)
-        current_version = version  # Use global version
-        
-        # List of files that cannot be deleted immediately
-        delayed_delete_files = []
-        
-        # Scan for old versions in the same directory
-        old_versions_found = False
-        for filename in os.listdir(current_dir):
-            if filename.startswith("CursorVIP_") and filename.endswith(".exe") and filename != os.path.basename(current_exe_path):
-                old_versions_found = True
-                try:
-                    file_path = os.path.join(current_dir, filename)
-                    print(f"{Fore.CYAN}{EMOJI['DELETE']} {translator.get('updater.removing_file', file=filename)}{Style.RESET_ALL}")
-                    os.remove(file_path)
-                    print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {translator.get('updater.file_removed')}{Style.RESET_ALL}")
-                except PermissionError:
-                    print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.file_in_use', file=filename)}{Style.RESET_ALL}")
-                    delayed_delete_files.append(file_path)
-                except Exception as e:
-                    print(f"{Fore.RED}{EMOJI['ERROR']} {translator.get('updater.remove_failed', file=filename, error=str(e))}{Style.RESET_ALL}")
-        
-        # Create bat script for delayed deletion if there are files that couldn't be deleted
-        if delayed_delete_files:
-            print(f"{Fore.CYAN}{EMOJI['INFO']} {translator.get('updater.creating_delayed_delete')}{Style.RESET_ALL}")
-            
-            # Create a batch file for Windows to delete files after reboot
-            if platform.system() == 'Windows':
-                bat_path = os.path.join(current_dir, "cleanup_old_versions.bat")
-                
-                with open(bat_path, 'w') as f:
-                    f.write('@echo off\n')
-                    f.write('echo Cleaning up old CursorVIP versions...\n')
-                    f.write(':check\n')
-                    
-                    for file_path in delayed_delete_files:
-                        f.write(f'del /f /q "{file_path}"\n')
-                        f.write(f'if exist "{file_path}" (\n')
-                        f.write('  echo Waiting for files to be released...\n')
-                        f.write('  timeout /t 2\n')
-                        f.write('  goto check\n')
-                        f.write(')\n')
-                        
-                    f.write('echo Cleanup completed.\n')
-                    f.write(f'del /f /q "{bat_path}"\n')
-                
-                # Make the batch file run on startup
-                startup_folder = os.path.join(os.getenv('APPDATA'), 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'Startup')
-                if os.path.exists(startup_folder):
-                    try:
-                        # Create a shortcut to the batch file
-                        import win32com.client
-                        shell = win32com.client.Dispatch("WScript.Shell")
-                        shortcut_path = os.path.join(startup_folder, "CursorVIP_Cleanup.lnk")
-                        shortcut = shell.CreateShortCut(shortcut_path)
-                        shortcut.Targetpath = bat_path
-                        shortcut.WorkingDirectory = current_dir
-                        shortcut.WindowStyle = 7  # Minimized
-                        shortcut.save()
-                        
-                        print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {translator.get('updater.delayed_delete_created')}{Style.RESET_ALL}")
-                    except Exception as sc_error:
-                        # If creating the shortcut fails, try direct file copy
-                        print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.using_alternative_method')}{Style.RESET_ALL}")
-                        try:
-                            shutil.copy(bat_path, os.path.join(startup_folder, os.path.basename(bat_path)))
-                            print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {translator.get('updater.alternative_method_success')}{Style.RESET_ALL}")
-                        except Exception as e:
-                            print(f"{Fore.RED}{EMOJI['ERROR']} {translator.get('updater.delayed_delete_failed', error=str(e))}{Style.RESET_ALL}")
-            else:
-                # For Unix-based systems
-                sh_path = os.path.join(current_dir, "cleanup_old_versions.sh")
-                
-                with open(sh_path, 'w') as f:
-                    f.write('#!/bin/bash\n')
-                    f.write('echo "Cleaning up old CursorVIP versions..."\n')
-                    
-                    for file_path in delayed_delete_files:
-                        f.write(f'while [ -f "{file_path}" ]; do\n')
-                        f.write(f'  rm -f "{file_path}"\n')
-                        f.write('  if [ -f "{file_path}" ]; then\n')
-                        f.write('    echo "Waiting for files to be released..."\n')
-                        f.write('    sleep 2\n')
-                        f.write('  fi\n')
-                        f.write('done\n')
-                        
-                    f.write('echo "Cleanup completed."\n')
-                    f.write(f'rm -f "{sh_path}"\n')
-                
-                # Make executable
-                os.chmod(sh_path, 0o755)
-                
-                # Try to add to user's crontab if possible
-                try:
-                    print(f"{Fore.CYAN}{EMOJI['INFO']} {translator.get('updater.adding_to_startup')}{Style.RESET_ALL}")
-                    if platform.system() == "Darwin":  # macOS
-                        plist_path = os.path.expanduser("~/Library/LaunchAgents/com.cursorvip.cleanup.plist")
-                        with open(plist_path, 'w') as f:
-                            f.write(f'''<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>Label</key>
-    <string>com.cursorvip.cleanup</string>
-    <key>ProgramArguments</key>
-    <array>
-        <string>{sh_path}</string>
-    </array>
-    <key>RunAtLoad</key>
-    <true/>
-</dict>
-</plist>''')
-                        subprocess.run(['launchctl', 'load', plist_path])
-                        print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {translator.get('updater.startup_task_created')}{Style.RESET_ALL}")
-                    else:  # Linux
-                        # Get the current user's crontab
-                        crontab_content = subprocess.check_output(['crontab', '-l'], stderr=subprocess.DEVNULL).decode('utf-8', errors='ignore')
-                        # Add our script to run at startup
-                        if sh_path not in crontab_content:
-                            new_crontab = crontab_content + f"\n@reboot {sh_path}\n"
-                            # Write to a temporary file
-                            temp_file = os.path.join(current_dir, "temp_crontab")
-                            with open(temp_file, 'w') as f:
-                                f.write(new_crontab)
-                            # Install the new crontab
-                            subprocess.run(['crontab', temp_file])
-                            # Remove the temporary file
-                            os.remove(temp_file)
-                            print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {translator.get('updater.startup_task_created')}{Style.RESET_ALL}")
-                except Exception as cron_error:
-                    print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.manual_cleanup_needed')}{Style.RESET_ALL}")
-                    print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('updater.cleanup_script_location', path=sh_path)}{Style.RESET_ALL}")
-        
-        if not old_versions_found:
-            print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {translator.get('updater.no_old_versions')}{Style.RESET_ALL}")
-        
-        return True
-    except Exception as e:
-        print(f"{Fore.RED}{EMOJI['ERROR']} {translator.get('updater.cleanup_error', error=str(e))}{Style.RESET_ALL}")
-        return False
 
 def main():
     # Check for admin privileges if running as executable on Windows only
     if platform.system() == 'Windows' and is_frozen() and not is_admin():
-        print(f"{Fore.YELLOW}{EMOJI['ADMIN']} Running as executable, administrator privileges required.{Style.RESET_ALL}")
+        print(f"{Fore.YELLOW}{EMOJI['ADMIN']} {translator.get('menu.admin_required')}{Style.RESET_ALL}")
         if run_as_admin():
             sys.exit(0)  # Exit after requesting admin privileges
         else:
-            print(f"{Fore.YELLOW}{EMOJI['INFO']} Continuing without administrator privileges.{Style.RESET_ALL}")
+            print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('menu.admin_required_continue')}{Style.RESET_ALL}")
     
     print_logo()
-    
-    # Check if this is first run after update
-    is_first_run = False
-    first_run_marker = ".first_run"
-    if os.path.exists(first_run_marker):
-        is_first_run = True
-        try:
-            os.remove(first_run_marker)
-        except:
-            pass
-    else:
-        # Create first run marker for next time
-        try:
-            with open(first_run_marker, 'w') as f:
-                f.write("1")
-        except:
-            pass
     
     # Initialize configuration
     config = get_config(translator)
     if not config:
         print(f"{Fore.RED}{EMOJI['ERROR']} {translator.get('menu.config_init_failed')}{Style.RESET_ALL}")
         return
-    
-    # If this is first run after update, check for old versions
-    if is_first_run:
-        check_and_remove_old_versions()
-    
-    # 创建已检查更新标志文件的路径
-    update_checked_marker = os.path.join(os.path.dirname(os.path.abspath(sys.executable if getattr(sys, 'frozen', False) else __file__)), ".update_checked")
-    
-    # 只有在标志文件不存在时才检查更新，防止重复检查
-    if not os.path.exists(update_checked_marker):
-        # Force check latest version
-        check_latest_version(force_update=True)
         
-        # 创建标志文件，标记已完成更新检查
-        try:
-            with open(update_checked_marker, 'w') as f:
-                f.write(str(time.time()))
-        except Exception:
-            pass
-    
-    # Print menu and continue with normal operation
+    if config.getboolean('Utils', 'enabled_update_check'):
+        check_latest_version()  # Add version check before showing menu
     print_menu()
     
     while True:
         try:
-            choice = input(f"\n{EMOJI['ARROW']} {Fore.CYAN}{translator.get('menu.input_choice', choices='0-11')}: {Style.RESET_ALL}")
+            choice_num = 15
+            choice = input(f"\n{EMOJI['ARROW']} {Fore.CYAN}{translator.get('menu.input_choice', choices=f'0-{choice_num}')}: {Style.RESET_ALL}")
 
             if choice == "0":
                 print(f"\n{Fore.YELLOW}{EMOJI['INFO']} {translator.get('menu.exit')}...{Style.RESET_ALL}")
@@ -761,8 +571,8 @@ def main():
                 reset_machine_manual.run(translator)
                 print_menu()
             elif choice == "2":
-                import delete_account
-                delete_account.run(translator)
+                import cursor_register
+                cursor_register.main(translator)
                 print_menu()
             elif choice == "3":
                 import cursor_register_google
@@ -777,28 +587,47 @@ def main():
                 cursor_register_manual.main(translator)
                 print_menu()
             elif choice == "6":
+                import github_cursor_register
+                print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('menu.coming_soon')}{Style.RESET_ALL}")
+                # github_cursor_register.main(translator)
+                print_menu()
+            elif choice == "7":
                 import quit_cursor
                 quit_cursor.quit_cursor(translator)
                 print_menu()
-            elif choice == "7":
+            elif choice == "8":
                 if select_language():
                     print_menu()
                 continue
-            elif choice == "8":
+            elif choice == "9":
                 import disable_auto_update
                 disable_auto_update.run(translator)
                 print_menu()
-            elif choice == "9":
+            elif choice == "10":
                 import totally_reset_cursor
                 totally_reset_cursor.run(translator)
-                print_menu()
-            elif choice == "10":
-                import show_wechat_group
-                show_wechat_group.show(translator)
+                # print(f"{Fore.YELLOW}{EMOJI['INFO']} {translator.get('menu.fixed_soon')}{Style.RESET_ALL}")
                 print_menu()
             elif choice == "11":
-                import cursor_delete_account
-                cursor_delete_account.run(translator)
+                import logo
+                print(logo.CURSOR_CONTRIBUTORS)
+                print_menu()
+            elif choice == "12":
+                from config import print_config
+                print_config(get_config(), translator)
+                print_menu()
+            elif choice == "13":
+                from oauth_auth import OAuthHandler
+                oauth = OAuthHandler(translator)
+                oauth._select_profile()
+                print_menu()
+            elif choice == "14":
+                import delete_cursor_google
+                delete_cursor_google.main(translator)
+                print_menu()
+            elif choice == "15":
+                import bypass_version
+                bypass_version.main(translator)
                 print_menu()
             else:
                 print(f"{Fore.RED}{EMOJI['ERROR']} {translator.get('menu.invalid_choice')}{Style.RESET_ALL}")

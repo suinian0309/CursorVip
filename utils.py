@@ -13,6 +13,15 @@ def get_user_documents_path():
 def get_default_chrome_path():
     """Get default Chrome path"""
     if sys.platform == "win32":
+        #  Trying to find chrome in PATH
+        try:
+            import shutil
+            chrome_in_path = shutil.which("chrome")
+            if chrome_in_path:
+                return chrome_in_path
+        except:
+            pass
+        # Going to default path
         return r"C:\Program Files\Google\Chrome\Application\chrome.exe"
     elif sys.platform == "darwin":
         return "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"

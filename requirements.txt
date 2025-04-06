@@ -6,5 +6,5 @@ psutil>=5.8.0
 pywin32; platform_system == "Windows"
 pyinstaller 
 DrissionPage>=4.0.0
-pillow
-qrcode
+selenium
+webdriver_manager
