@@ -81,7 +81,7 @@ exe = EXE(
     target_arch=None,  # 使用默认架构
     codesign_identity=None,
     entitlements_file=None,
-    icon='images/logo.ico',  # 如果有图标文件，请确保路径正确
-    version='file_version_info.txt',  # 如果有版本信息文件，请确保路径正确
+    icon=None,  # 不使用图标
+    version=None,  # 不使用版本信息文件
     uac_admin=True  # 请求管理员权限
 )

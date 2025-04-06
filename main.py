@@ -280,11 +280,10 @@ def print_menu():
         5: f"{Fore.GREEN}5{Style.RESET_ALL}. {EMOJI['LANG']} {translator.get('menu.select_language')}",
         6: f"{Fore.GREEN}6{Style.RESET_ALL}. {EMOJI['UPDATE']} {translator.get('menu.disable_auto_update')}",
         7: f"{Fore.GREEN}7{Style.RESET_ALL}. {EMOJI['RESET']} {translator.get('menu.totally_reset')}",
-        8: f"{Fore.GREEN}8{Style.RESET_ALL}. {EMOJI['CONTRIBUTE']} {translator.get('menu.contribute')}",
-        9: f"{Fore.GREEN}9{Style.RESET_ALL}. {EMOJI['SETTINGS']}  {translator.get('menu.config')}",
-        10: f"{Fore.GREEN}10{Style.RESET_ALL}. {EMOJI['SETTINGS']}  {translator.get('menu.select_chrome_profile')}",
-        11: f"{Fore.GREEN}11{Style.RESET_ALL}. {EMOJI['ERROR']}  {translator.get('menu.delete_google_account', fallback='Delete Cursor Google Account')}",
-        12: f"{Fore.GREEN}12{Style.RESET_ALL}. {EMOJI['UPDATE']}  {translator.get('menu.bypass_version_check', fallback='Bypass Cursor Version Check')}"
+        8: f"{Fore.GREEN}8{Style.RESET_ALL}. {EMOJI['SETTINGS']}  {translator.get('menu.config')}",
+        9: f"{Fore.GREEN}9{Style.RESET_ALL}. {EMOJI['SETTINGS']}  {translator.get('menu.select_chrome_profile')}",
+        10: f"{Fore.GREEN}10{Style.RESET_ALL}. {EMOJI['ERROR']}  {translator.get('menu.delete_google_account', fallback='Delete Cursor Google Account')}",
+        11: f"{Fore.GREEN}11{Style.RESET_ALL}. {EMOJI['UPDATE']}  {translator.get('menu.bypass_version_check', fallback='Bypass Cursor Version Check')}"
     }
 
     # Automatically calculate the number of menu items in the left and right columns
@@ -556,7 +555,7 @@ def main():
 
     while True:
         try:
-            choice_num = 12
+            choice_num = 11
             choice = input(f"\n{EMOJI['ARROW']} {Fore.CYAN}{translator.get('menu.input_choice', choices=f'0-{choice_num}')}: {Style.RESET_ALL}")
 
             if choice == "0":
@@ -593,23 +592,19 @@ def main():
                 totally_reset_cursor.run(translator)
                 print_menu()
             elif choice == "8":
-                import logo
-                print(logo.CURSOR_CONTRIBUTORS)
-                print_menu()
-            elif choice == "9":
                 from config import print_config
                 print_config(get_config(), translator)
                 print_menu()
-            elif choice == "10":
+            elif choice == "9":
                 from oauth_auth import OAuthHandler
                 oauth = OAuthHandler(translator)
                 oauth._select_profile()
                 print_menu()
-            elif choice == "11":
+            elif choice == "10":
                 import delete_cursor_google
                 delete_cursor_google.main(translator)
                 print_menu()
-            elif choice == "12":
+            elif choice == "11":
                 import bypass_version
                 bypass_version.main(translator)
                 print_menu()
