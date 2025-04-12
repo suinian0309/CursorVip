@@ -211,6 +211,7 @@ by the user.
 [![Star History Chart](https://api.star-history.com/svg?repos=suinian0309/cursorvip&type=Date)](https://star-history.com/#suinian0309/cursorvip&Date)
 
 </div>
+
 ## 📝  | 致谢
 
 本项部分代码参考 [此项目](https://github.com/yeongpin/cursor-free-vip) 感谢
