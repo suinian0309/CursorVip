@@ -1,5 +1,52 @@
 # Change Log
 
+## v1.9.02
+1. Add: Bypass Token Limit | 添加繞過 Token 限制
+2. Add: More Browser Support | 添加更多瀏覽器支持
+3. Add: Bypass Cursor JWT EXP Problem | 添加繞過 Cursor JWT EXP 問題
+3. Support: Add Opera, Brave, Edge, Firefox | 添加支持 Opera, Brave, Edge, Firefox
+4. Add config manual browser path | 添加配置手動選擇遊覽器路徑
+5. Fix: Browser Profile Selection | 修復瀏覽器配置文件選擇
+6. Fix: Cursor editor redirects to logout page and logout automatically | 修復 Cursor 編輯器重定向到登出頁面並自動登出
+7. Fix: Config File Path | 修復配置文件路徑
+8. Fix: window user permission | 修復 window 用戶權限
+9. Fix: Some Issues | 修復一些問題
+
+## v1.9.01
+1. Add: Bypass Token Limit | 添加繞過 Token 限制
+2. Add: More Browser Support | 添加更多瀏覽器支持
+3. Support: Add Opera, Brave, Edge, Firefox | 添加支持 Opera, Brave, Edge, Firefox
+4. Add config manual browser path | 添加配置手動選擇遊覽器路徑
+5. Fix: Browser Profile Selection | 修復瀏覽器配置文件選擇
+6. Fix: Some Issues | 修復一些問題
+
+
+## v1.8.10
+1. Add: Check User Authorized | 添加檢查用戶授權
+2. Fix: Linux Reset Process Error: 'base' | 修復 Linux 重置過程錯誤：'base'
+3. Updated the get_workbench_cursor_path function to handle Linux systems more effectively. | 更新 get_workbench_cursor_path 函數以更有效地處理 Linux 系統
+4. Added logic to use the first base path if no valid paths are found in the existing loop. | 添加邏輯以在找不到有效路徑時使用第一個基礎路徑
+5. Improved maintainability and clarity of the code by explicitly handling different operating systems. | 通過明確處理不同的操作系統，顯著提高了代碼的可維護性和清晰性
+6. Fix: Some Issues | 修復一些問題
+
+## v1.8.09
+1. Add: Bypass Token Limit Check | 繞過 Token 使用限制檢查
+2. Add：Bypass Claude Limit 30000 set to 900000(9e5) | 繞過 Claude 使用限制 30000 設置為 900000(9e5)
+3. Add: Force Update Config | 添加強制更新配置
+4. Add: Multilanguage support for force update | 添加強制更新功能的多語言支持
+5. Fix: Reset break | 修復重置中斷
+4. Fix: Some Issues | 修復一些問題
+
+## v1.8.08
+1. Add: Force Update Config | 添加強制更新配置
+2. Add: Multilanguage support for force update | 添加強制更新功能的多語言支持
+3. Fix: Google Auth & Github Auth JWT Problem | 修復 Google Auth & Github Auth JWT 問題
+4. Fix: Totally reset import & import * raw options problem | 修復 totally reset import & import * raw 選項問題
+5. Fix: reset.file_not_found problem | 修復 reset.file_not_found 問題
+6. Outdated: Bypass Cursor Version Check | 過期：繞過 Cursor 版本檢查
+7. Document: i.header.set("x-cursor-config-version", "UUID4-xxxxxx-xxxxxx-xxxxxx-xxxxxx"); | 文檔：i.header.set("x-cursor-config-version", "UUID4-xxxxxx-xxxxxx-xxxxxx-xxxxxx");
+8. Fix: Some Issues | 修復一些問題
+
 ## v1.8.07
 1. Add: Bypass Cursor Version Check | 添加繞過 Cursor 版本檢查
 2. Add: Multilanguage support for bypass | 添加繞過的多語言支持
@@ -245,7 +292,7 @@ These changes make the application more user-friendly by only requesting admin p
 1. Fix: Cursor Auth | 修復 Cursor Auth
 2. Add: Create Account Maximum Retry | 增加創建賬號最大重試次數
 3. Fix: Cursor Auth Error | 修復 Cursor Auth 錯誤
-4. Fix: Update Curl Faild | 修復更新 Curl 失敗
+4. Fix: Update Curl Failed | 修復更新 Curl 失敗
 
 ## v1.5.03
 1. HOTFIX: Stuck on starting browser | 修復啟動瀏覽器卡住問題

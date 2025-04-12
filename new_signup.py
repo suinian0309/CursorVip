@@ -8,6 +8,7 @@ import configparser
 from pathlib import Path
 import sys
 from config import get_config 
+from utils import get_default_browser_path as utils_get_default_browser_path
 
 # Add global variable at the beginning of the file
 _translator = None
@@ -112,29 +113,6 @@ def fill_signup_form(page, first_name, last_name, email, config, translator=None
             print(f"Error filling form: {e}")
         return False
 
-def get_default_chrome_path():
-    """Get default Chrome path"""
-    if sys.platform == "win32":
-        paths = [
-            os.path.join(os.environ.get('PROGRAMFILES', ''), 'Google/Chrome/Application/chrome.exe'),
-            os.path.join(os.environ.get('PROGRAMFILES(X86)', ''), 'Google/Chrome/Application/chrome.exe'),
-            os.path.join(os.environ.get('LOCALAPPDATA', ''), 'Google/Chrome/Application/chrome.exe')
-        ]
-    elif sys.platform == "darwin":
-        paths = [
-            "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-        ]
-    else:  # Linux
-        paths = [
-            "/usr/bin/google-chrome",
-            "/usr/bin/google-chrome-stable"
-        ]
-
-    for path in paths:
-        if os.path.exists(path):
-            return path
-    return ""
-
 def get_user_documents_path():
     """Get user Documents folder path"""
     if sys.platform == "win32":
@@ -186,25 +164,32 @@ def setup_driver(translator=None):
         # Get config
         config = get_config(translator)
         
-        # Get Chrome path
-        chrome_path = config.get('Chrome', 'chromepath', fallback=get_default_chrome_path())
+        # Get browser type and path
+        browser_type = config.get('Browser', 'default_browser', fallback='chrome')
+        browser_path = config.get('Browser', f'{browser_type}_path', fallback=utils_get_default_browser_path(browser_type))
         
-        if not chrome_path or not os.path.exists(chrome_path):
+        if not browser_path or not os.path.exists(browser_path):
             if translator:
-                print(f"{Fore.YELLOW}⚠️ {translator.get('register.chrome_path_invalid') if translator else 'Chrome路径无效，使用默认路径'}{Style.RESET_ALL}")
-            chrome_path = get_default_chrome_path()
+                print(f"{Fore.YELLOW}⚠️ {browser_type} {translator.get('register.browser_path_invalid')}{Style.RESET_ALL}")
+            browser_path = utils_get_default_browser_path(browser_type)
+
+        # For backward compatibility, also check Chrome path
+        if browser_type == 'chrome':
+            chrome_path = config.get('Chrome', 'chromepath', fallback=None)
+            if chrome_path and os.path.exists(chrome_path):
+                browser_path = chrome_path
 
         # Set browser options
         co = ChromiumOptions()
         
-        # Set Chrome path
-        co.set_browser_path(chrome_path)
+        # Set browser path
+        co.set_browser_path(browser_path)
         
         # Use incognito mode
         co.set_argument("--incognito")
 
         if sys.platform == "linux":
-            # Set random port
+            # Set Linux specific options
             co.set_argument("--no-sandbox")
             
         # Set random port
@@ -212,6 +197,10 @@ def setup_driver(translator=None):
         
         # Use headless mode (must be set to False, simulate human operation)
         co.headless(False)
+        
+        # Log browser info
+        if translator:
+            print(f"{Fore.CYAN}🌐 {translator.get('register.using_browser')}: {browser_type} {browser_path}{Style.RESET_ALL}")
         
         try:
             # Load extension
@@ -234,30 +223,38 @@ def setup_driver(translator=None):
         before_pids = []
         try:
             import psutil
-            before_pids = [p.pid for p in psutil.process_iter() if 'chrome' in p.name().lower()]
+            browser_process_names = {
+                'chrome': ['chrome', 'chromium'],
+                'edge': ['msedge', 'edge'],
+                'firefox': ['firefox'],
+                'brave': ['brave', 'brave-browser']
+            }
+            process_names = browser_process_names.get(browser_type, ['chrome'])
+            before_pids = [p.pid for p in psutil.process_iter() if any(name in p.name().lower() for name in process_names)]
         except:
             pass
             
         # Launch browser
         page = ChromiumPage(co)
         
-        # Wait a moment for Chrome to fully launch
+        # Wait a moment for browser to fully launch
         time.sleep(1)
         
-        # Record Chrome processes after launching and find new ones
+        # Record browser processes after launching and find new ones
         try:
             import psutil
-            after_pids = [p.pid for p in psutil.process_iter() if 'chrome' in p.name().lower()]
-            # Find new Chrome processes
+            process_names = browser_process_names.get(browser_type, ['chrome'])
+            after_pids = [p.pid for p in psutil.process_iter() if any(name in p.name().lower() for name in process_names)]
+            # Find new browser processes
             new_pids = [pid for pid in after_pids if pid not in before_pids]
             _chrome_process_ids.extend(new_pids)
             
             if _chrome_process_ids:
-                print(f"Tracking {len(_chrome_process_ids)} Chrome processes")
+                print(f"{translator.get('register.tracking_processes', count=len(_chrome_process_ids), browser=browser_type)}")
             else:
-                print(f"{Fore.YELLOW}Warning: No new Chrome processes detected to track{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}Warning: {translator.get('register.no_new_processes_detected', browser=browser_type)}{Style.RESET_ALL}")
         except Exception as e:
-            print(f"Warning: Could not track Chrome processes: {e}")
+            print(f"{translator.get('register.could_not_track_processes', browser=browser_type, error=str(e))}")
             
         return config, page
 

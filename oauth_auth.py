@@ -7,9 +7,10 @@ import sys
 import json
 from DrissionPage import ChromiumPage, ChromiumOptions
 from cursor_auth import CursorAuth
-from utils import get_random_wait_time, get_default_chrome_path
+from utils import get_random_wait_time, get_default_browser_path
 from config import get_config
 import platform
+from get_user_token import get_token_from_cookie
 
 # Initialize colorama
 init()
@@ -63,41 +64,100 @@ class OAuthHandler:
             return []
 
     def _select_profile(self):
-        """Select a Chrome profile to use"""
+        """Allow user to select a browser profile to use"""
         try:
-            # Get available profiles
-            profiles = self._get_available_profiles(self._get_user_data_directory())
-            if not profiles:
-                print(f"{Fore.YELLOW}{EMOJI['INFO']} {self.translator.get('chrome_profile.no_profiles') if self.translator else 'No Chrome profiles found'}{Style.RESET_ALL}")
-                return False
-
-            # Display available profiles
-            print(f"\n{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('chrome_profile.select_profile') if self.translator else 'Select a Chrome profile to use:'}{Style.RESET_ALL}")
-            print(f"{Fore.CYAN}{self.translator.get('chrome_profile.profile_list') if self.translator else 'Available profiles:'}{Style.RESET_ALL}")
-            print(f"{Fore.CYAN}0. {self.translator.get('menu.exit') if self.translator else 'Exit'}{Style.RESET_ALL}")
-            for i, (dir_name, display_name) in enumerate(profiles, 1):
-                print(f"{Fore.CYAN}{i}. {display_name} ({dir_name}){Style.RESET_ALL}")
-
-            # Get user selection
-            while True:
-                try:
-                    choice = int(input(f"\n{Fore.CYAN}{self.translator.get('menu.input_choice', choices=f'0-{len(profiles)}') if self.translator else f'Please enter your choice (0-{len(profiles)}): '}{Style.RESET_ALL}"))
-                    if choice == 0:  # Add quit 
-                        print(f"{Fore.YELLOW}{EMOJI['INFO']} {self.translator.get('menu.exiting') if self.translator else 'Exiting profile selection...'}{Style.RESET_ALL}")
-                        return False
-                    elif 1 <= choice <= len(profiles):
-                        self.selected_profile = profiles[choice - 1][0]
-                        print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {self.translator.get('chrome_profile.profile_selected', profile=self.selected_profile) if self.translator else f'Selected profile: {self.selected_profile}'}{Style.RESET_ALL}")
-                        return True
+            # 从配置中获取浏览器类型
+            config = get_config(self.translator)
+            browser_type = config.get('Browser', 'default_browser', fallback='chrome')
+            browser_type_display = browser_type.capitalize()
+            
+            if self.translator:
+                # 动态使用浏览器类型
+                print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('browser_profile.select_profile', browser=browser_type_display)}{Style.RESET_ALL}")
+                print(f"{Fore.CYAN}{self.translator.get('browser_profile.profile_list', browser=browser_type_display)}{Style.RESET_ALL}")
+            else:
+                print(f"{Fore.CYAN}{EMOJI['INFO']} Select {browser_type_display} profile to use:{Style.RESET_ALL}")
+                print(f"Available {browser_type_display} profiles:")
+            
+            # Get the user data directory for the browser type
+            user_data_dir = self._get_user_data_directory()
+            
+            # Load available profiles from the selected browser type
+            try:
+                local_state_file = os.path.join(user_data_dir, "Local State")
+                if os.path.exists(local_state_file):
+                    with open(local_state_file, 'r', encoding='utf-8') as f:
+                        state_data = json.load(f)
+                    profiles_data = state_data.get('profile', {}).get('info_cache', {})
+                    
+                    # Create a list of available profiles
+                    profiles = []
+                    for profile_id, profile_info in profiles_data.items():
+                        name = profile_info.get('name', profile_id)
+                        # Mark the default profile
+                        if profile_id.lower() == 'default':
+                            name = f"{name} (Default)"
+                        profiles.append((profile_id, name))
+                    
+                    # Sort profiles by name
+                    profiles.sort(key=lambda x: x[1])
+                    
+                    # Show available profiles
+                    if self.translator:
+                        print(f"{Fore.CYAN}0. {self.translator.get('menu.exit')}{Style.RESET_ALL}")
                     else:
-                        print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('chrome_profile.invalid_selection') if self.translator else 'Invalid selection. Please try again.'}{Style.RESET_ALL}")
-                except ValueError:
-                    print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('chrome_profile.invalid_selection') if self.translator else 'Invalid selection. Please try again.'}{Style.RESET_ALL}")
+                        print(f"{Fore.CYAN}0. Exit{Style.RESET_ALL}")
+                    
+                    for i, (profile_id, name) in enumerate(profiles, 1):
+                        print(f"{Fore.CYAN}{i}. {name}{Style.RESET_ALL}")
+                    
+                    # Get user's choice
+                    max_choice = len(profiles)
+                    choice_str = input(f"\n{Fore.CYAN}{self.translator.get('menu.input_choice', choices=f'0-{max_choice}') if self.translator else f'Please enter your choice (0-{max_choice})'}{Style.RESET_ALL}")
+                    
+                    try:
+                        choice = int(choice_str)
+                        if choice == 0:
+                            return False
+                        elif 1 <= choice <= max_choice:
+                            selected_profile = profiles[choice-1][0]
+                            self.selected_profile = selected_profile
+                            
+                            if self.translator:
+                                print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {self.translator.get('browser_profile.profile_selected', profile=selected_profile)}{Style.RESET_ALL}")
+                            else:
+                                print(f"{Fore.GREEN}{EMOJI['SUCCESS']} Selected profile: {selected_profile}{Style.RESET_ALL}")
+                            return True
+                        else:
+                            if self.translator:
+                                print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('browser_profile.invalid_selection')}{Style.RESET_ALL}")
+                            else:
+                                print(f"{Fore.RED}{EMOJI['ERROR']} Invalid selection. Please try again.{Style.RESET_ALL}")
+                            return self._select_profile()
+                    except ValueError:
+                        if self.translator:
+                            print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('browser_profile.invalid_selection')}{Style.RESET_ALL}")
+                        else:
+                            print(f"{Fore.RED}{EMOJI['ERROR']} Invalid selection. Please try again.{Style.RESET_ALL}")
+                        return self._select_profile()
+                else:
+                    # No Local State file, use Default profile
+                    print(f"{Fore.YELLOW}{EMOJI['WARNING']} {self.translator.get('browser_profile.no_profiles', browser=browser_type_display) if self.translator else f'No {browser_type_display} profiles found'}{Style.RESET_ALL}")
+                    self.selected_profile = "Default"
+                    return True
+                    
+            except Exception as e:
+                # Error loading profiles, use Default profile
+                print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('browser_profile.error_loading', error=str(e), browser=browser_type_display) if self.translator else f'Error loading {browser_type_display} profiles: {str(e)}'}{Style.RESET_ALL}")
+                self.selected_profile = "Default"
+                return True
             
         except Exception as e:
-            print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('chrome_profile.error_loading', error=str(e)) if self.translator else f'Error loading Chrome profiles: {e}'}{Style.RESET_ALL}")
-            return False
-        
+            # General error, use Default profile
+            print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('oauth.profile_selection_error', error=str(e)) if self.translator else f'Error during profile selection: {str(e)}'}{Style.RESET_ALL}")
+            self.selected_profile = "Default"
+            return True
+
     def setup_browser(self):
         """Setup browser for OAuth flow using selected profile"""
         try:
@@ -107,11 +167,15 @@ class OAuthHandler:
             platform_name = platform.system().lower()
             print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('oauth.detected_platform', platform=platform_name) if self.translator else f'Detected platform: {platform_name}'}{Style.RESET_ALL}")
             
+            # 从配置中获取浏览器类型
+            config = get_config(self.translator)
+            browser_type = config.get('Browser', 'default_browser', fallback='chrome')
+            
             # Get browser paths and user data directory
             user_data_dir = self._get_user_data_directory()
-            chrome_path = self._get_browser_path()
+            browser_path = self._get_browser_path()
             
-            if not chrome_path:
+            if not browser_path:
                 raise Exception(f"{self.translator.get('oauth.no_compatible_browser_found') if self.translator else 'No compatible browser found. Please install Google Chrome or Chromium.'}\n{self.translator.get('oauth.supported_browsers', platform=platform_name)}\n" + 
                               "- Windows: Google Chrome, Chromium\n" +
                               "- macOS: Google Chrome, Chromium\n" +
@@ -119,8 +183,14 @@ class OAuthHandler:
             
             print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('oauth.found_browser_data_directory', path=user_data_dir) if self.translator else f'Found browser data directory: {user_data_dir}'}{Style.RESET_ALL}")
             
-            # Show warning about closing Chrome first
-            print(f"\n{Fore.YELLOW}{EMOJI['WARNING']} {self.translator.get('chrome_profile.warning_chrome_close') if self.translator else 'Warning: This will close all running Chrome processes'}{Style.RESET_ALL}")
+            # Show warning about closing browser first - 使用动态提示
+            if self.translator:
+                warning_msg = self.translator.get('oauth.warning_browser_close', browser=browser_type)
+            else:
+                warning_msg = f'Warning: This will close all running {browser_type} processes'
+            
+            print(f"\n{Fore.YELLOW}{EMOJI['WARNING']} {warning_msg}{Style.RESET_ALL}")
+            
             choice = input(f"{Fore.YELLOW} {self.translator.get('menu.continue_prompt', choices='y/N')} {Style.RESET_ALL}").lower()
             if choice != 'y':
                 print(f"{Fore.YELLOW}{EMOJI['INFO']} {self.translator.get('menu.operation_cancelled_by_user') if self.translator else 'Operation cancelled by user'}{Style.RESET_ALL}")
@@ -135,14 +205,14 @@ class OAuthHandler:
                 return False
             
             # Configure browser options
-            co = self._configure_browser_options(chrome_path, user_data_dir, self.selected_profile)
+            co = self._configure_browser_options(browser_path, user_data_dir, self.selected_profile)
             
-            print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('oauth.starting_browser', path=chrome_path) if self.translator else f'Starting browser at: {chrome_path}'}{Style.RESET_ALL}")
+            print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('oauth.starting_browser', path=browser_path) if self.translator else f'Starting browser at: {browser_path}'}{Style.RESET_ALL}")
             self.browser = ChromiumPage(co)
             
             # Verify browser launched successfully
             if not self.browser:
-                raise Exception(f"{self.translator.get('oauth.browser_failed_to_start') if self.translator else 'Failed to initialize browser instance'}")
+                raise Exception(f"{self.translator.get('oauth.browser_failed_to_start', error=str(e)) if self.translator else 'Failed to initialize browser instance'}")
             
             print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {self.translator.get('oauth.browser_setup_completed') if self.translator else 'Browser setup completed successfully'}{Style.RESET_ALL}")
             return True
@@ -158,14 +228,61 @@ class OAuthHandler:
             return False
 
     def _kill_browser_processes(self):
-        """Kill existing browser processes based on platform"""
+        """Kill existing browser processes based on platform and browser type"""
         try:
+            # 从配置中获取浏览器类型
+            config = get_config(self.translator)
+            browser_type = config.get('Browser', 'default_browser', fallback='chrome')
+            browser_type = browser_type.lower()
+            
+            # 根据浏览器类型和平台定义要关闭的进程
+            browser_processes = {
+                'chrome': {
+                    'win': ['chrome.exe', 'chromium.exe'],
+                    'linux': ['chrome', 'chromium', 'chromium-browser'],
+                    'mac': ['Chrome', 'Chromium']
+                },
+                'brave': {
+                    'win': ['brave.exe'],
+                    'linux': ['brave', 'brave-browser'],
+                    'mac': ['Brave Browser']
+                },
+                'edge': {
+                    'win': ['msedge.exe'],
+                    'linux': ['msedge'],
+                    'mac': ['Microsoft Edge']
+                },
+                'firefox': {
+                    'win': ['firefox.exe'],
+                    'linux': ['firefox'],
+                    'mac': ['Firefox']
+                },
+                'opera': {
+                    'win': ['opera.exe', 'launcher.exe'],
+                    'linux': ['opera'],
+                    'mac': ['Opera']
+                }
+            }
+            
+            # 获取平台类型
+            if os.name == 'nt':
+                platform_type = 'win'
+            elif sys.platform == 'darwin':
+                platform_type = 'mac'
+            else:
+                platform_type = 'linux'
+            
+            # 获取要关闭的进程列表
+            processes = browser_processes.get(browser_type, browser_processes['chrome']).get(platform_type, [])
+            
+            if self.translator:
+                print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('oauth.killing_browser_processes', browser=browser_type) if self.translator else f'Killing {browser_type} processes...'}{Style.RESET_ALL}")
+            
+            # 根据平台关闭进程
             if os.name == 'nt':  # Windows
-                processes = ['chrome.exe', 'chromium.exe']
                 for proc in processes:
                     os.system(f'taskkill /f /im {proc} >nul 2>&1')
             else:  # Linux/Mac
-                processes = ['chrome', 'chromium', 'chromium-browser']
                 for proc in processes:
                     os.system(f'pkill -f {proc} >/dev/null 2>&1')
             
@@ -174,95 +291,182 @@ class OAuthHandler:
             print(f"{Fore.YELLOW}{EMOJI['INFO']} {self.translator.get('oauth.warning_could_not_kill_existing_browser_processes', error=str(e)) if self.translator else f'Warning: Could not kill existing browser processes: {e}'}{Style.RESET_ALL}")
 
     def _get_user_data_directory(self):
-        """Get the appropriate user data directory based on platform"""
+        """Get the default user data directory based on browser type and platform"""
         try:
+            # 从配置中获取浏览器类型
+            config = get_config(self.translator)
+            browser_type = config.get('Browser', 'default_browser', fallback='chrome')
+            browser_type = browser_type.lower()
+            
+            # 根据操作系统和浏览器类型获取用户数据目录
             if os.name == 'nt':  # Windows
-                possible_paths = [
-                    os.path.expandvars(r'%LOCALAPPDATA%\Google\Chrome\User Data'),
-                    os.path.expandvars(r'%LOCALAPPDATA%\Chromium\User Data')
-                ]
+                user_data_dirs = {
+                    'chrome': os.path.join(os.environ.get('LOCALAPPDATA', ''), 'Google', 'Chrome', 'User Data'),
+                    'brave': os.path.join(os.environ.get('LOCALAPPDATA', ''), 'BraveSoftware', 'Brave-Browser', 'User Data'),
+                    'edge': os.path.join(os.environ.get('LOCALAPPDATA', ''), 'Microsoft', 'Edge', 'User Data'),
+                    'firefox': os.path.join(os.environ.get('APPDATA', ''), 'Mozilla', 'Firefox', 'Profiles'),
+                    'opera': os.path.join(os.environ.get('APPDATA', ''), 'Opera Software', 'Opera Stable')
+                }
             elif sys.platform == 'darwin':  # macOS
-                possible_paths = [
-                    os.path.expanduser('~/Library/Application Support/Google/Chrome'),
-                    os.path.expanduser('~/Library/Application Support/Chromium')
-                ]
+                user_data_dirs = {
+                    'chrome': os.path.expanduser('~/Library/Application Support/Google/Chrome'),
+                    'brave': os.path.expanduser('~/Library/Application Support/BraveSoftware/Brave-Browser'),
+                    'edge': os.path.expanduser('~/Library/Application Support/Microsoft Edge'),
+                    'firefox': os.path.expanduser('~/Library/Application Support/Firefox/Profiles'),
+                    'opera': os.path.expanduser('~/Library/Application Support/com.operasoftware.Opera')
+                }
             else:  # Linux
-                possible_paths = [
-                    os.path.expanduser('~/.config/google-chrome'),
-                    os.path.expanduser('~/.config/chromium'),
-                    '/usr/bin/google-chrome',
-                    '/usr/bin/chromium-browser'
-                ]
+                user_data_dirs = {
+                    'chrome': os.path.expanduser('~/.config/google-chrome'),
+                    'brave': os.path.expanduser('~/.config/BraveSoftware/Brave-Browser'),
+                    'edge': os.path.expanduser('~/.config/microsoft-edge'),
+                    'firefox': os.path.expanduser('~/.mozilla/firefox'),
+                    'opera': os.path.expanduser('~/.config/opera')
+                }
             
-            # Try each possible path
-            for path in possible_paths:
-                if os.path.exists(path):
-                    return path
+            # 获取选定浏览器的用户数据目录，如果找不到则使用 Chrome 的
+            user_data_dir = user_data_dirs.get(browser_type)
             
-            # Create temporary profile if no existing profile found
-            temp_profile = os.path.join(os.path.expanduser('~'), '.cursor_temp_profile')
-            print(f"{Fore.YELLOW}{EMOJI['INFO']} {self.translator.get('oauth.creating_temporary_profile', path=temp_profile) if self.translator else f'Creating temporary profile at: {temp_profile}'}{Style.RESET_ALL}")
-            os.makedirs(temp_profile, exist_ok=True)
-            return temp_profile
+            if user_data_dir and os.path.exists(user_data_dir):
+                print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {self.translator.get('oauth.found_browser_user_data_dir', browser=browser_type, path=user_data_dir) if self.translator else f'Found {browser_type} user data directory: {user_data_dir}'}{Style.RESET_ALL}")
+                return user_data_dir
+            else:
+                print(f"{Fore.YELLOW}{EMOJI['WARNING']} {self.translator.get('oauth.user_data_dir_not_found', browser=browser_type, path=user_data_dir) if self.translator else f'{browser_type} user data directory not found at {user_data_dir}, will try Chrome instead'}{Style.RESET_ALL}")
+                return user_data_dirs['chrome']  # 回退到 Chrome 目录
             
         except Exception as e:
             print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('oauth.error_getting_user_data_directory', error=str(e)) if self.translator else f'Error getting user data directory: {e}'}{Style.RESET_ALL}")
-            raise
+            # 在出错时提供一个默认目录
+            if os.name == 'nt':
+                return os.path.join(os.environ.get('LOCALAPPDATA', ''), 'Google', 'Chrome', 'User Data')
+            elif sys.platform == 'darwin':
+                return os.path.expanduser('~/Library/Application Support/Google/Chrome')
+            else:
+                return os.path.expanduser('~/.config/google-chrome')
 
     def _get_browser_path(self):
-        """Get the browser executable path based on platform"""
+        """Get appropriate browser path based on platform and selected browser type"""
         try:
-            # Try default path first
-            chrome_path = get_default_chrome_path()
-            if chrome_path and os.path.exists(chrome_path):
-                return chrome_path
+            # 从配置中获取浏览器类型
+            config = get_config(self.translator)
+            browser_type = config.get('Browser', 'default_browser', fallback='chrome')
+            browser_type = browser_type.lower()
+            
+            # 首先检查配置中是否有明确指定的浏览器路径
+            browser_path = config.get('Browser', f'{browser_type}_path', fallback=None)
+            if browser_path and os.path.exists(browser_path):
+                print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {self.translator.get('oauth.using_configured_browser_path', browser=browser_type, path=browser_path) if self.translator else f'Using configured {browser_type} path: {browser_path}'}{Style.RESET_ALL}")
+                return browser_path
+            
+            # 尝试获取默认路径
+            browser_path = get_default_browser_path(browser_type)
+            if browser_path and os.path.exists(browser_path):
+                return browser_path
             
             print(f"{Fore.YELLOW}{EMOJI['INFO']} {self.translator.get('oauth.searching_for_alternative_browser_installations') if self.translator else 'Searching for alternative browser installations...'}{Style.RESET_ALL}")
             
-            # Platform-specific paths
+            # 如果未找到配置中指定的浏览器，则尝试查找其他兼容浏览器
             if os.name == 'nt':  # Windows
-                alt_paths = [
-                    r'C:\Program Files\Google\Chrome\Application\chrome.exe',
-                    r'C:\Program Files (x86)\Google\Chrome\Application\chrome.exe',
-                    r'C:\Program Files\Chromium\Application\chrome.exe',
-                    os.path.expandvars(r'%ProgramFiles%\Google\Chrome\Application\chrome.exe'),
-                    os.path.expandvars(r'%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe')
-                ]
+                possible_paths = []
+                if browser_type == 'brave':
+                    possible_paths = [
+                        os.path.join(os.environ.get('PROGRAMFILES', ''), 'BraveSoftware', 'Brave-Browser', 'Application', 'brave.exe'),
+                        os.path.join(os.environ.get('PROGRAMFILES(X86)', ''), 'BraveSoftware', 'Brave-Browser', 'Application', 'brave.exe'),
+                        os.path.join(os.environ.get('LOCALAPPDATA', ''), 'BraveSoftware', 'Brave-Browser', 'Application', 'brave.exe')
+                    ]
+                elif browser_type == 'edge':
+                    possible_paths = [
+                        os.path.join(os.environ.get('PROGRAMFILES', ''), 'Microsoft', 'Edge', 'Application', 'msedge.exe'),
+                        os.path.join(os.environ.get('PROGRAMFILES(X86)', ''), 'Microsoft', 'Edge', 'Application', 'msedge.exe')
+                    ]
+                elif browser_type == 'firefox':
+                    possible_paths = [
+                        os.path.join(os.environ.get('PROGRAMFILES', ''), 'Mozilla Firefox', 'firefox.exe'),
+                        os.path.join(os.environ.get('PROGRAMFILES(X86)', ''), 'Mozilla Firefox', 'firefox.exe')
+                    ]
+                elif browser_type == 'opera':
+                    possible_paths = [
+                        os.path.join(os.environ.get('PROGRAMFILES', ''), 'Opera', 'opera.exe'),
+                        os.path.join(os.environ.get('PROGRAMFILES(X86)', ''), 'Opera', 'opera.exe'),
+                        os.path.join(os.environ.get('LOCALAPPDATA', ''), 'Programs', 'Opera', 'launcher.exe'),
+                        os.path.join(os.environ.get('LOCALAPPDATA', ''), 'Programs', 'Opera', 'opera.exe'),
+                        os.path.join(os.environ.get('LOCALAPPDATA', ''), 'Programs', 'Opera GX', 'launcher.exe'),
+                        os.path.join(os.environ.get('LOCALAPPDATA', ''), 'Programs', 'Opera GX', 'opera.exe')
+                    ]
+                else:  # 默认为 Chrome
+                    possible_paths = [
+                        os.path.join(os.environ.get('PROGRAMFILES', ''), 'Google', 'Chrome', 'Application', 'chrome.exe'),
+                        os.path.join(os.environ.get('PROGRAMFILES(X86)', ''), 'Google', 'Chrome', 'Application', 'chrome.exe'),
+                        os.path.join(os.environ.get('LOCALAPPDATA', ''), 'Google', 'Chrome', 'Application', 'chrome.exe')
+                    ]
+                
             elif sys.platform == 'darwin':  # macOS
-                alt_paths = [
-                    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-                    '/Applications/Chromium.app/Contents/MacOS/Chromium',
-                    '~/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-                    '~/Applications/Chromium.app/Contents/MacOS/Chromium'
-                ]
+                possible_paths = []
+                if browser_type == 'brave':
+                    possible_paths = ['/Applications/Brave Browser.app/Contents/MacOS/Brave Browser']
+                elif browser_type == 'edge':
+                    possible_paths = ['/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge']
+                elif browser_type == 'firefox':
+                    possible_paths = ['/Applications/Firefox.app/Contents/MacOS/firefox']
+                else:  # 默认为 Chrome
+                    possible_paths = ['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome']
+                
             else:  # Linux
-                alt_paths = [
-                    '/usr/bin/google-chrome',
-                    '/usr/bin/chromium-browser',
-                    '/usr/bin/chromium',
-                    '/snap/bin/chromium',
-                    '/usr/local/bin/chrome',
-                    '/usr/local/bin/chromium'
-                ]
+                possible_paths = []
+                if browser_type == 'brave':
+                    possible_paths = ['/usr/bin/brave-browser', '/usr/bin/brave']
+                elif browser_type == 'edge':
+                    possible_paths = ['/usr/bin/microsoft-edge']
+                elif browser_type == 'firefox':
+                    possible_paths = ['/usr/bin/firefox']
+                else:  # 默认为 Chrome
+                    possible_paths = ['/usr/bin/google-chrome', '/usr/bin/google-chrome-stable', '/usr/bin/chromium', '/usr/bin/chromium-browser']
+                
+            # 检查每个可能的路径
+            for path in possible_paths:
+                if os.path.exists(path):
+                    print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {self.translator.get('oauth.found_browser_at', path=path) if self.translator else f'Found browser at: {path}'}{Style.RESET_ALL}")
+                    return path
             
-            # Try each alternative path
-            for path in alt_paths:
-                expanded_path = os.path.expanduser(path)
-                if os.path.exists(expanded_path):
-                    print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {self.translator.get('oauth.found_browser_at', path=expanded_path) if self.translator else f'Found browser at: {expanded_path}'}{Style.RESET_ALL}")
-                    return expanded_path
+            # 如果找不到指定浏览器，则尝试使用Chrome
+            if browser_type != 'chrome':
+                print(f"{Fore.YELLOW}{EMOJI['WARNING']} {self.translator.get('oauth.browser_not_found_trying_chrome', browser=browser_type) if self.translator else f'Could not find {browser_type}, trying Chrome instead'}{Style.RESET_ALL}")
+                return self._get_chrome_path()
             
             return None
             
         except Exception as e:
             print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('oauth.error_finding_browser_path', error=str(e)) if self.translator else f'Error finding browser path: {e}'}{Style.RESET_ALL}")
             return None
+        
+    def _get_chrome_path(self):
+        """Fallback method to get Chrome path"""
+        try:
+            if os.name == 'nt':  # Windows
+                possible_paths = [
+                    os.path.join(os.environ.get('PROGRAMFILES', ''), 'Google', 'Chrome', 'Application', 'chrome.exe'),
+                    os.path.join(os.environ.get('PROGRAMFILES(X86)', ''), 'Google', 'Chrome', 'Application', 'chrome.exe'),
+                    os.path.join(os.environ.get('LOCALAPPDATA', ''), 'Google', 'Chrome', 'Application', 'chrome.exe')
+                ]
+            elif sys.platform == 'darwin':  # macOS
+                possible_paths = ['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome']
+            else:  # Linux
+                possible_paths = ['/usr/bin/google-chrome', '/usr/bin/google-chrome-stable', '/usr/bin/chromium', '/usr/bin/chromium-browser']
+            
+            for path in possible_paths:
+                if os.path.exists(path):
+                    print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {self.translator.get('oauth.found_chrome_at', path=path) if self.translator else f'Found Chrome at: {path}'}{Style.RESET_ALL}")
+                    return path
+            return None
+        except Exception as e:
+            print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('oauth.error_finding_chrome_path', error=str(e)) if self.translator else f'Error finding Chrome path: {e}'}{Style.RESET_ALL}")
+            return None
 
-    def _configure_browser_options(self, chrome_path, user_data_dir, active_profile):
+    def _configure_browser_options(self, browser_path, user_data_dir, active_profile):
         """Configure browser options based on platform"""
         try:
             co = ChromiumOptions()
-            co.set_paths(browser_path=chrome_path, user_data_path=user_data_dir)
+            co.set_paths(browser_path=browser_path, user_data_path=user_data_dir)
             co.set_argument(f'--profile-directory={active_profile}')
             
             # Basic options
@@ -330,13 +534,19 @@ class OAuthHandler:
                 # Check if we're on account selection page
                 if "accounts.google.com" in self.browser.url:
                     print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('oauth.please_select_your_google_account_to_continue') if self.translator else 'Please select your Google account to continue...'}{Style.RESET_ALL}")
-                    alert_message = self.translator.get('oauth.please_select_your_google_account_to_continue') if self.translator else 'Please select your Google account to continue with Cursor authentication'
-                    try:
-                        self.browser.run_js(f"""
-                        alert('{alert_message}');
-                        """)
-                    except:
-                        pass  # Alert is optional
+                    
+                    # 获取配置中是否启用 alert 选项
+                    config = get_config(self.translator)
+                    show_alert = config.getboolean('OAuth', 'show_selection_alert', fallback=False)
+                    
+                    if show_alert:
+                        alert_message = self.translator.get('oauth.please_select_your_google_account_to_continue') if self.translator else 'Please select your Google account to continue with Cursor authentication'
+                        try:
+                            self.browser.run_js(f"""
+                            alert('{alert_message}');
+                            """)
+                        except:
+                            pass  # Alert is optional
                 
                 # Wait for authentication to complete
                 auth_info = self._wait_for_auth()
@@ -378,13 +588,7 @@ class OAuthHandler:
                     for cookie in cookies:
                         if cookie.get("name") == "WorkosCursorSessionToken":
                             value = cookie.get("value", "")
-                            token = None
-                            
-                            if "::" in value:
-                                token = value.split("::")[-1]
-                            elif "%3A%3A" in value:
-                                token = value.split("%3A%3A")[-1]
-                            
+                            token = get_token_from_cookie(value, self.translator)
                             if token:
                                 # Get email from settings page
                                 print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('oauth.authentication_successful_getting_account_info') if self.translator else 'Authentication successful, getting account info...'}{Style.RESET_ALL}")
@@ -420,7 +624,6 @@ class OAuthHandler:
 
                                         if check_usage_limits(usage_text):
                                             print(f"{Fore.YELLOW}{EMOJI['INFO']} {self.translator.get('oauth.account_has_reached_maximum_usage', deleting='deleting') if self.translator else 'Account has reached maximum usage, deleting...'}{Style.RESET_ALL}")
-                                            
                                             if self._delete_current_account():
                                                 print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('oauth.starting_new_authentication_process') if self.translator else 'Starting new authentication process...'}{Style.RESET_ALL}")
                                                 if self.auth_type == "google":
@@ -459,7 +662,7 @@ class OAuthHandler:
             
             # Setup browser
             if not self.setup_browser():
-                print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('oauth.browser_failed')}{Style.RESET_ALL}")
+                print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('oauth.browser_failed', error=str(e)) if self.translator else 'Browser failed to initialize'}{Style.RESET_ALL}")
                 return False, None
             
             # Navigate to auth URL
@@ -590,11 +793,7 @@ class OAuthHandler:
                         for cookie in cookies:
                             if cookie.get("name") == "WorkosCursorSessionToken":
                                 value = cookie.get("value", "")
-                                if "::" in value:
-                                    token = value.split("::")[-1]
-                                elif "%3A%3A" in value:
-                                    token = value.split("%3A%3A")[-1]
-                                
+                                token = get_token_from_cookie(value, self.translator)
                                 if token:
                                     print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {self.translator.get('oauth.authentication_successful') if self.translator else 'Authentication successful!'}{Style.RESET_ALL}")
                                     # Navigate to settings page
@@ -632,7 +831,6 @@ class OAuthHandler:
 
                                             if check_usage_limits(usage_text):
                                                 print(f"{Fore.YELLOW}{EMOJI['INFO']} {self.translator.get('oauth.account_has_reached_maximum_usage', deleting='deleting') if self.translator else 'Account has reached maximum usage, deleting...'}{Style.RESET_ALL}")
-                                                
                                                 if self._delete_current_account():
                                                     print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('oauth.starting_new_authentication_process') if self.translator else 'Starting new authentication process...'}{Style.RESET_ALL}")
                                                     if self.auth_type == "google":
@@ -658,10 +856,7 @@ class OAuthHandler:
                             for cookie in cookies:
                                 if cookie.get("name") == "WorkosCursorSessionToken":
                                     value = cookie.get("value", "")
-                                    if "::" in value:
-                                        token = value.split("::")[-1]
-                                    elif "%3A%3A" in value:
-                                        token = value.split("%3A%3A")[-1]
+                                    token = get_token_from_cookie(value, self.translator)
                                     if token:
                                         # Get email and check usage here too
                                         try:
@@ -691,19 +886,18 @@ class OAuthHandler:
                                                     except:
                                                         return False
 
-                                                if check_usage_limits(usage_text):
-                                                    print(f"{Fore.YELLOW}{EMOJI['INFO']} {self.translator.get('oauth.account_has_reached_maximum_usage', deleting='deleting') if self.translator else 'Account has reached maximum usage, deleting...'}{Style.RESET_ALL}")
-                                                    
-                                                    if self._delete_current_account():
-                                                        print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('oauth.starting_new_authentication_process') if self.translator else 'Starting new authentication process...'}{Style.RESET_ALL}")
-                                                        if self.auth_type == "google":
-                                                            return self.handle_google_auth()
-                                                        else:
-                                                            return self.handle_github_auth()
+                                            if check_usage_limits(usage_text):
+                                                print(f"{Fore.YELLOW}{EMOJI['INFO']} {self.translator.get('oauth.account_has_reached_maximum_usage', deleting='deleting') if self.translator else 'Account has reached maximum usage, deleting...'}{Style.RESET_ALL}")
+                                                if self._delete_current_account():
+                                                    print(f"{Fore.CYAN}{EMOJI['INFO']} {self.translator.get('oauth.starting_new_authentication_process') if self.translator else 'Starting new authentication process...'}{Style.RESET_ALL}")
+                                                    if self.auth_type == "google":
+                                                        return self.handle_google_auth()
                                                     else:
-                                                        print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('oauth.failed_to_delete_expired_account') if self.translator else 'Failed to delete expired account'}{Style.RESET_ALL}")
+                                                        return self.handle_github_auth()
                                                 else:
-                                                    print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {self.translator.get('oauth.account_is_still_valid', usage=usage_text) if self.translator else f'Account is still valid (Usage: {usage_text})'}{Style.RESET_ALL}")
+                                                    print(f"{Fore.RED}{EMOJI['ERROR']} {self.translator.get('oauth.failed_to_delete_expired_account') if self.translator else 'Failed to delete expired account'}{Style.RESET_ALL}")
+                                            else:
+                                                print(f"{Fore.GREEN}{EMOJI['SUCCESS']} {self.translator.get('oauth.account_is_still_valid', usage=usage_text) if self.translator else f'Account is still valid (Usage: {usage_text})'}{Style.RESET_ALL}")
                                         except Exception as e:
                                             print(f"{Fore.YELLOW}{EMOJI['INFO']} {self.translator.get('oauth.could_not_check_usage_count', error=str(e)) if self.translator else f'Could not check usage count: {str(e)}'}{Style.RESET_ALL}")
                                         
@@ -759,10 +953,7 @@ class OAuthHandler:
                 if name == "WorkosCursorSessionToken":
                     try:
                         value = cookie.get("value", "")
-                        if "::" in value:
-                            token = value.split("::")[-1]
-                        elif "%3A%3A" in value:
-                            token = value.split("%3A%3A")[-1]
+                        token = get_token_from_cookie(value, self.translator)
                     except Exception as e:
                         print(f"{Fore.YELLOW}{EMOJI['INFO']} {self.translator.get('oauth.token_extraction_error', error=str(e)) if self.translator else f'Token extraction error: {str(e)}'}{Style.RESET_ALL}")
                 elif name == "cursor_email":

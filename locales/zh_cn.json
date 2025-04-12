@@ -30,7 +30,9 @@
         "continue_prompt": "继续？(y/N): ",
         "operation_cancelled_by_user": "操作被用户取消",
         "exiting": "退出中 ……",
-        "bypass_version_check": "绕过 Cursor 版本检查"
+        "bypass_version_check": "绕过 Cursor 版本检查",
+        "check_user_authorized": "检查用户授权",
+        "bypass_token_limit": "绕过 Token 限制"
     },
     "languages": {
         "en": "英语",
@@ -117,7 +119,8 @@
         "modify_file_failed": "修改文件失败: {error}",
         "windows_machine_id_updated": "Windows机器ID更新成功",
         "update_windows_machine_id_failed": "更新Windows机器ID失败: {error}",
-        "update_windows_machine_guid_failed": "更新Windows机器GUID失败: {error}"
+        "update_windows_machine_guid_failed": "更新Windows机器GUID失败: {error}",
+        "file_not_found": "文件未找到: {path}"
     },
     "register": {
         "title": "Cursor 注册工具",
@@ -194,7 +197,15 @@
         "password_submitted": "密码已提交",
         "total_usage": "总使用量: {usage}",
         "setting_on_password": "设置密码",
-        "getting_code": "获取验证码，将在60秒内尝试..."
+        "getting_code": "获取验证码，将在60秒内尝试...",
+        "browser_path_invalid": "{browser} 路径无效，使用默认路径",
+        "using_browser": "正在使用 {browser} 浏览器: {path}",
+        "using_browser_profile": "使用 {browser} 配置文件: {user_data_dir}",
+        "make_sure_browser_is_properly_installed": "确保 {browser} 已正确安装",
+        "try_install_browser": "尝试使用包管理器安装浏览器",
+        "tracking_processes": "正在跟踪 {count} 个 {browser} 进程",
+        "no_new_processes_detected": "未检测到新的 {browser} 进程",
+        "could_not_track_processes": "无法跟踪 {browser} 进程: {error}"
     },
     "auth": {
         "title": "Cursor 认证管理器",
@@ -406,9 +417,9 @@
         "reset_log_6": "如果可能，使用 VPN 更改 IP 地址",
         "reset_log_7": "访问 Cursor AI 网站前清除浏览器的 Cookie 和缓存",
         "reset_log_8": "如果仍有问题，尝试将 Cursor AI 安装到不同位置",
-        "reset_log_9": "如遇到任何问题，请到 Github Issue Tracker 提交问题：https://github.com/suinian0309/cursorvip/issues",
+        "reset_log_9": "如遇到任何问题，请到 Github Issue Tracker 提交问题：https://github.com/yeongpin/cursor-free-vip/issues",
         "unexpected_error": "发生意外错误：{error}",
-        "report_issue": "请在 Github Issue Tracker 报告此问题：https://github.com/suinian0309/cursorvip/issues",
+        "report_issue": "请在 Github Issue Tracker 报告此问题：https://github.com/yeongpin/cursor-free-vip/issues",
         "keyboard_interrupt": "用户中断进程，正在退出...",
         "return_to_main_menu": "返回主菜单...",
         "process_interrupted": "进程已中断，正在退出...",
@@ -533,7 +544,16 @@
         "config_setup_error": "配置设置错误",
         "storage_file_is_valid_and_contains_data": "存储文件有效且包含数据",
         "error_reading_storage_file": "读取存储文件时出错",
-        "also_checked": "也检查了 {path}"
+        "also_checked": "也检查了 {path}",
+        "backup_created": "备份创建: {path}",
+        "config_removed": "配置文件已删除用于强制更新",
+        "backup_failed": "备份失败: {error}",
+        "force_update_failed": "强制更新配置失败: {error}",
+        "config_force_update_disabled": "配置文件强制更新已禁用，跳过强制更新",
+        "config_force_update_enabled": "配置文件强制更新已启用，正在执行强制更新",
+        "documents_path_not_found": "找不到文档路径，使用当前目录",
+        "config_dir_created": "已创建配置目录: {path}",
+        "using_temp_dir": "由于错误使用临时目录: {path} (错误: {error})"
     },
     "oauth": {
         "authentication_button_not_found": "未找到认证按钮",
@@ -592,19 +612,27 @@
         "warning_could_not_kill_existing_browser_processes": "警告: 无法杀死现有浏览器进程: {error}",
         "browser_failed_to_start": "浏览器启动失败: {error}",
         "browser_failed": "浏览器启动失败: {error}",
-        "browser_failed_to_start_fallback": "浏览器启动失败: {error}"
+        "browser_failed_to_start_fallback": "浏览器启动失败: {error}",
+        "user_data_dir_not_found": "{browser} 用户数据目录未找到：{path}，将尝试使用 Chrome",
+        "error_getting_user_data_directory": "获取用户数据目录出错：{error}",
+        "warning_browser_close": "警告：这将关闭所有正在运行的 {browser} 进程",
+        "killing_browser_processes": "正在关闭 {browser} 进程...",
+        "profile_selection_error": "配置文件选择过程中出错: {error}",
+        "using_configured_browser_path": "使用配置的 {browser} 路径: {path}",
+        "browser_not_found_trying_chrome": "未找到 {browser}，尝试使用 Chrome 代替",
+        "found_chrome_at": "找到 Chrome: {path}",
+        "found_browser_user_data_dir": "找到 {browser} 用户数据目录: {path}"
     },
-    "chrome_profile": {
-        "title": "Chrome配置文件选择",
-        "select_profile": "选择要使用的Chrome配置文件：",
-        "profile_list": "可用配置文件：",
+    "browser_profile": {
+        "title": "浏览器配置文件选择",
+        "select_profile": "选择要使用的{browser}配置文件：",
+        "profile_list": "可用{browser}配置文件：",
         "default_profile": "默认配置文件",
         "profile": "配置文件 {number}",
-        "no_profiles": "未找到Chrome配置文件",
-        "error_loading": "加载Chrome配置文件时出错：{error}",
+        "no_profiles": "未找到{browser}配置文件",
+        "error_loading": "加载{browser}配置文件时出错：{error}",
         "profile_selected": "已选择配置文件：{profile}",
-        "invalid_selection": "选择无效。请重试",
-        "warning_chrome_close": "警告：这将关闭所有正在运行的Chrome进程"
+        "invalid_selection": "选择无效。请重试"
     },
     "account_delete": {
         "title": "Cursor Google 账号删除工具",
@@ -669,5 +697,50 @@
         "title": "Cursor 版本绕过工具",
         "description": "此工具修改 Cursor 的 product.json 以绕过版本限制",
         "menu_option": "绕过 Cursor 版本检查"
+    },
+    "auth_check": {
+        "checking_authorization": "检查授权...",
+        "token_source": "从数据库获取 token 或手动输入？（d/m, 默认: d）",
+        "getting_token_from_db": "从数据库获取 token...",
+        "token_found_in_db": "在数据库中找到 token",
+        "token_not_found_in_db": "在数据库中未找到 token",
+        "cursor_acc_info_not_found": "cursor_acc_info.py 未找到",
+        "error_getting_token_from_db": "从数据库获取 token 时出错: {error}",
+        "enter_token": "请输入您的 Cursor token: ",
+        "token_length": "token 长度: {length}",
+        "usage_response_status": "使用情况响应状态: {response}",
+        "unexpected_status_code": "意外状态码: {code}",
+        "jwt_token_warning": "token 似乎是 JWT 格式，但 API 检查返回意外状态码。token 可能有效但 API 访问受限。",
+        "invalid_token": "无效的 token",
+        "user_authorized": "用户已授权",
+        "user_unauthorized": "用户未授权",
+        "request_timeout": "请求超时",
+        "connection_error": "连接错误",
+        "check_error": "检查授权时出错: {error}",
+        "authorization_successful": "授权成功",
+        "authorization_failed": "授权失败",
+        "operation_cancelled": "操作已取消",
+        "unexpected_error": "意外错误: {error}",
+        "error_generating_checksum": "生成校验和时出错: {error}",
+        "checking_usage_information": "检查使用情况...",
+        "check_usage_response": "检查使用情况响应: {response}",
+        "usage_response": "使用情况响应: {response}"
+    },
+    "bypass_token_limit": {
+        "title": "绕过 Token 限制工具",
+        "description": "此工具修改 workbench.desktop.main.js 文件以绕过 token 限制",
+        "press_enter": "按回车键继续..."
+    },
+    "token": {
+        "refreshing": "正在刷新令牌...",
+        "refresh_success": "令牌刷新成功！有效期 {days} 天（到期时间: {expire}）",
+        "no_access_token": "响应中没有访问令牌",
+        "refresh_failed": "令牌刷新失败: {error}",
+        "invalid_response": "刷新服务器返回无效的 JSON 响应",
+        "server_error": "刷新服务器错误: HTTP {status}",
+        "request_timeout": "刷新服务器请求超时",
+        "connection_error": "连接刷新服务器错误",
+        "unexpected_error": "令牌刷新过程中出现意外错误: {error}",
+        "extraction_error": "提取令牌时出错: {error}"
     }
 } 

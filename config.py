@@ -2,7 +2,9 @@ import os
 import sys
 import configparser
 from colorama import Fore, Style
-from utils import get_user_documents_path, get_default_chrome_path, get_linux_cursor_path
+from utils import get_user_documents_path, get_linux_cursor_path, get_default_driver_path, get_default_browser_path
+import shutil
+import datetime
 
 EMOJI = {
     "INFO": "ℹ️",
@@ -16,19 +18,60 @@ EMOJI = {
     "SETTINGS": "⚙️"
 }
 
+# global config cache
+_config_cache = None
+
 def setup_config(translator=None):
     """Setup configuration file and return config object"""
     try:
-        config_dir = os.path.join(get_user_documents_path(), ".Cursorvip")
-        config_file = os.path.join(config_dir, "config.ini")
-        os.makedirs(config_dir, exist_ok=True)
+        # get documents path
+        docs_path = get_user_documents_path()
+        if not docs_path or not os.path.exists(docs_path):
+            # if documents path not found, use current directory
+            print(f"{Fore.YELLOW}{EMOJI['WARNING']} {translator.get('config.documents_path_not_found', fallback='Documents path not found, using current directory') if translator else 'Documents path not found, using current directory'}{Style.RESET_ALL}")
+            docs_path = os.path.abspath('.')
         
+        # normalize path
+        config_dir = os.path.normpath(os.path.join(docs_path, ".cursor-free-vip"))
+        config_file = os.path.normpath(os.path.join(config_dir, "config.ini"))
+        
+        # create config directory, only print message when directory not exists
+        dir_exists = os.path.exists(config_dir)
+        try:
+            os.makedirs(config_dir, exist_ok=True)
+            if not dir_exists:  # only print message when directory not exists
+                print(f"{Fore.CYAN}{EMOJI['INFO']} {translator.get('config.config_dir_created', path=config_dir) if translator else f'Config directory created: {config_dir}'}{Style.RESET_ALL}")
+        except Exception as e:
+            # if cannot create directory, use temporary directory
+            import tempfile
+            temp_dir = os.path.normpath(os.path.join(tempfile.gettempdir(), ".cursor-free-vip"))
+            temp_exists = os.path.exists(temp_dir)
+            config_dir = temp_dir
+            config_file = os.path.normpath(os.path.join(config_dir, "config.ini"))
+            os.makedirs(config_dir, exist_ok=True)
+            if not temp_exists:  # only print message when temporary directory not exists
+                print(f"{Fore.YELLOW}{EMOJI['WARNING']} {translator.get('config.using_temp_dir', path=config_dir, error=str(e)) if translator else f'Using temporary directory due to error: {config_dir} (Error: {str(e)})'}{Style.RESET_ALL}")
+        
+        # create config object
         config = configparser.ConfigParser()
         
         # Default configuration
         default_config = {
+            'Browser': {
+                'default_browser': 'chrome',
+                'chrome_path': get_default_browser_path('chrome'),
+                'edge_path': get_default_browser_path('edge'),
+                'firefox_path': get_default_browser_path('firefox'),
+                'brave_path': get_default_browser_path('brave'),
+                'chrome_driver_path': get_default_driver_path('chrome'),
+                'edge_driver_path': get_default_driver_path('edge'),
+                'firefox_driver_path': get_default_driver_path('firefox'),
+                'brave_driver_path': get_default_driver_path('brave'),
+                'opera_path': get_default_browser_path('opera'),
+                'opera_driver_path': get_default_driver_path('opera')
+            },
             'Chrome': {
-                'chromepath': get_default_chrome_path()
+                'chromepath': get_default_browser_path('chrome')
             },
             'Turnstile': {
                 'handle_turnstile_time': '2',
@@ -52,7 +95,17 @@ def setup_config(translator=None):
             },
             'Utils': {
                 'enabled_update_check': 'True',
+                'enabled_force_update': 'False',
                 'enabled_account_info': 'True'
+            },
+            'OAuth': {
+                'show_selection_alert': False,  # 默认不显示选择提示弹窗
+                'timeout': 120,
+                'max_attempts': 3
+            },
+            'Token': {
+                'refresh_server': 'https://token.cursorpro.com.cn',
+                'enable_refresh': True
             }
         }
 
@@ -252,11 +305,64 @@ def print_config(config, translator=None):
             print(f"  {key} = {value_display}")
     
     print(f"\n{Fore.CYAN}{'─' * 70}{Style.RESET_ALL}")
-    config_dir = os.path.join(get_user_documents_path(), ".Cursorvip", "config.ini")
+    config_dir = os.path.join(get_user_documents_path(), ".cursor-free-vip", "config.ini")
     print(f"{Fore.CYAN}{EMOJI['INFO']} {translator.get('config.config_directory') if translator else 'Config Directory'}: {config_dir}{Style.RESET_ALL}")
 
     print()  
 
+def force_update_config(translator=None):
+    """
+    Force update configuration file with latest defaults if update check is enabled.
+    Args:
+        translator: Translator instance
+    Returns:
+        ConfigParser instance or None if failed
+    """
+    try:
+        config_dir = os.path.join(get_user_documents_path(), ".cursor-free-vip")
+        config_file = os.path.join(config_dir, "config.ini")
+        current_time = datetime.datetime.now()
+
+        # If the config file exists, check if forced update is enabled
+        if os.path.exists(config_file):
+            # First, read the existing configuration
+            existing_config = configparser.ConfigParser()
+            existing_config.read(config_file, encoding='utf-8')
+            # Check if "enabled_update_check" is True
+            update_enabled = True  # Default to True if not set
+            if existing_config.has_section('Utils') and existing_config.has_option('Utils', 'enabled_force_update'):
+                update_enabled = existing_config.get('Utils', 'enabled_force_update').strip().lower() in ('true', 'yes', '1', 'on')
+
+            if update_enabled:
+                try:
+                    # Create a backup
+                    backup_file = f"{config_file}.bak.{current_time.strftime('%Y%m%d_%H%M%S')}"
+                    shutil.copy2(config_file, backup_file)
+                    if translator:
+                        print(f"\n{Fore.CYAN}{EMOJI['INFO']} {translator.get('config.backup_created', path=backup_file) if translator else f'Backup created: {backup_file}'}{Style.RESET_ALL}")
+                    print(f"\n{Fore.CYAN}{EMOJI['INFO']} {translator.get('config.config_force_update_enabled') if translator else 'Config file force update enabled'}{Style.RESET_ALL}")
+                    # Delete the original config file (forced update)
+                    os.remove(config_file)
+                    if translator:
+                        print(f"{Fore.CYAN}{EMOJI['INFO']} {translator.get('config.config_removed') if translator else 'Config file removed for forced update'}{Style.RESET_ALL}")
+                except Exception as e:
+                    if translator:
+                        print(f"{Fore.RED}{EMOJI['ERROR']} {translator.get('config.backup_failed', error=str(e)) if translator else f'Failed to backup config: {str(e)}'}{Style.RESET_ALL}")
+            else:
+                if translator:
+                    print(f"\n{Fore.CYAN}{EMOJI['INFO']} {translator.get('config.config_force_update_disabled', fallback='Config file force update disabled by configuration. Keeping existing config file.') if translator else 'Config file force update disabled by configuration. Keeping existing config file.'}{Style.RESET_ALL}")
+
+        # Generate a new (or updated) configuration if needed
+        return setup_config(translator)
+
+    except Exception as e:
+        if translator:
+            print(f"{Fore.RED}{EMOJI['ERROR']} {translator.get('config.force_update_failed', error=str(e)) if translator else f'Force update config failed: {str(e)}'}{Style.RESET_ALL}")
+        return None
+
 def get_config(translator=None):
     """Get existing config or create new one"""
-    return setup_config(translator) 
+    global _config_cache
+    if _config_cache is None:
+        _config_cache = setup_config(translator)
+    return _config_cache 

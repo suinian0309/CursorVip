@@ -6,7 +6,8 @@ from colorama import Fore, Style, init
 import requests
 import random
 import string
-from utils import get_random_wait_time
+from config import get_config
+from utils import get_random_wait_time, get_default_browser_path as utils_get_default_browser_path
 
 # Initialize colorama
 init()
@@ -104,8 +105,33 @@ class NewTempEmail:
             else:
                 print(f"{Fore.CYAN}ℹ️ 正在启动浏览器...{Style.RESET_ALL}")
             
+            # 获取配置
+            config = get_config(self.translator)
+            
+            # 获取浏览器类型和路径
+            browser_type = config.get('Browser', 'default_browser', fallback='chrome')
+            browser_path = config.get('Browser', f'{browser_type}_path', fallback=utils_get_default_browser_path(browser_type))
+            
+            if not browser_path or not os.path.exists(browser_path):
+                if self.translator:
+                    print(f"{Fore.YELLOW}⚠️ {self.translator.get('email.browser_path_invalid', browser=browser_type) if self.translator else f'{browser_type} 路径无效，使用默认路径'}{Style.RESET_ALL}")
+                browser_path = utils_get_default_browser_path(browser_type)
+            
+            # 为了向后兼容，也检查 Chrome 路径
+            if browser_type == 'chrome':
+                chrome_path = config.get('Chrome', 'chromepath', fallback=None)
+                if chrome_path and os.path.exists(chrome_path):
+                    browser_path = chrome_path
+            
             # 创建浏览器选项
             co = ChromiumOptions()
+            
+            # 设置浏览器路径
+            co.set_browser_path(browser_path)
+            
+            # 记录浏览器信息
+            if self.translator:
+                print(f"{Fore.CYAN}🌐 {self.translator.get('email.using_browser', browser=browser_type, path=browser_path) if self.translator else f'使用 {browser_type} 浏览器: {browser_path}'}{Style.RESET_ALL}")
             
             # Only use headless for non-OAuth operations
             if not hasattr(self, 'auth_type') or self.auth_type != 'oauth':
@@ -122,22 +148,43 @@ class NewTempEmail:
                 co.set_argument("--disable-dev-shm-usage")
                 co.set_argument("--disable-gpu")
                 
-                # If running as root, try to use actual user's Chrome profile
+                # If running as root, try to use actual user's browser profile
                 if os.geteuid() == 0:
                     sudo_user = os.environ.get('SUDO_USER')
                     if sudo_user:
                         actual_home = f"/home/{sudo_user}"
-                        user_data_dir = os.path.join(actual_home, ".config", "google-chrome")
+                        
+                        # 根据浏览器类型选择配置文件夹
+                        profile_dirs = {
+                            'chrome': os.path.join(actual_home, ".config", "google-chrome"),
+                            'brave': os.path.join(actual_home, ".config", "BraveSoftware", "Brave-Browser"),
+                            'edge': os.path.join(actual_home, ".config", "microsoft-edge"),
+                            'firefox': os.path.join(actual_home, ".mozilla", "firefox")
+                        }
+                        
+                        user_data_dir = profile_dirs.get(browser_type, profile_dirs['chrome'])
+                        
                         if os.path.exists(user_data_dir):
-                            print(f"{Fore.CYAN}ℹ️ {self.translator.get('email.using_chrome_profile', user_data_dir=user_data_dir) if self.translator else f'Using Chrome profile from: {user_data_dir}'}{Style.RESET_ALL}")
+                            print(f"{Fore.CYAN}ℹ️ {self.translator.get('email.using_browser_profile', browser=browser_type, user_data_dir=user_data_dir) if self.translator else f'Using {browser_type} profile from: {user_data_dir}'}{Style.RESET_ALL}")
                             co.set_argument(f"--user-data-dir={user_data_dir}")
             
             co.auto_port()  # 自动设置端口
             
+            # 根据浏览器类型设置扩展参数
+            extension_args = {
+                'chrome': "--allow-extensions-in-incognito",
+                'brave': "--allow-extensions-in-brave-incognito",  # Brave 可能使用不同的参数
+                'edge': "--allow-extensions-in-incognito",
+                'firefox': None  # Firefox 可能使用不同的方式加载扩展
+            }
+            
+            extension_arg = extension_args.get(browser_type, "--allow-extensions-in-incognito")
+            
             # 加载 uBlock 插件
             try:
                 extension_path = self.get_extension_block()
-                co.set_argument("--allow-extensions-in-incognito")
+                if extension_arg:  # 如果有扩展参数
+                    co.set_argument(extension_arg)
                 co.add_extension(extension_path)
             except Exception as e:
                 if self.translator:
@@ -154,8 +201,17 @@ class NewTempEmail:
                 print(f"{Fore.RED}❌ 启动浏览器失败: {str(e)}{Style.RESET_ALL}")
             
             if sys.platform == "linux":
-                print(f"{Fore.YELLOW}ℹ️ {self.translator.get('email.make_sure_chrome_chromium_is_properly_installed') if self.translator else 'Make sure Chrome/Chromium is properly installed'}{Style.RESET_ALL}")
-                print(f"{Fore.YELLOW}ℹ️ {self.translator.get('email.try_install_chromium') if self.translator else 'Try: sudo apt install chromium-browser'}{Style.RESET_ALL}")
+                browser_install_suggestions = {
+                    'chrome': "sudo apt install chromium-browser 或 sudo apt install google-chrome-stable",
+                    'brave': "sudo apt install brave-browser",
+                    'edge': "sudo apt install microsoft-edge-stable",
+                    'firefox': "sudo apt install firefox"
+                }
+                
+                suggestion = browser_install_suggestions.get(browser_type, browser_install_suggestions['chrome'])
+                
+                print(f"{Fore.YELLOW}ℹ️ {self.translator.get('email.make_sure_browser_is_properly_installed', browser=browser_type) if self.translator else f'Make sure {browser_type} is properly installed'}{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}ℹ️ {self.translator.get('email.try_install_browser') if self.translator else f'Try: {suggestion}'}{Style.RESET_ALL}")
             return False
             
     def create_email(self):

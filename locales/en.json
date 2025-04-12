@@ -30,7 +30,9 @@
         "continue_prompt": "Continue? (y/N): ",
         "operation_cancelled_by_user": "Operation cancelled by user",
         "exiting": "Exiting ……",
-        "bypass_version_check": "Bypass Cursor Version Check"
+        "bypass_version_check": "Bypass Cursor Version Check",
+        "check_user_authorized": "Check User Authorized",
+        "bypass_token_limit": "Bypass Token Limit"
     },
     "languages": {
         "en": "English",
@@ -117,7 +119,8 @@
         "modify_file_failed": "Modify File Failed: {error}",
         "windows_machine_id_updated": "Windows Machine ID Updated Successfully",
         "update_windows_machine_id_failed": "Update Windows Machine ID Failed: {error}",
-        "update_windows_machine_guid_failed": "Update Windows Machine GUID Failed: {error}"
+        "update_windows_machine_guid_failed": "Update Windows Machine GUID Failed: {error}",
+        "file_not_found": "File Not Found: {path}"
     },
     "register": {
         "title": "Cursor Registration Tool",
@@ -196,7 +199,15 @@
         "setting_on_password": "Setting Password",
         "getting_code": "Getting Verification Code, Will Try in 60s",
         "human_verify_error": "Can't verify the user is human. Retrying...",
-        "max_retries_reached": "Maximum retry attempts reached. Registration failed."
+        "max_retries_reached": "Maximum retry attempts reached. Registration failed.",
+        "browser_path_invalid": "{browser} path is invalid, using default path",
+        "using_browser": "Using {browser} browser: {path}",
+        "using_browser_profile": "Using {browser} profile from: {user_data_dir}",
+        "make_sure_browser_is_properly_installed": "Make sure {browser} is properly installed",
+        "try_install_browser": "Try installing the browser with your package manager",
+        "tracking_processes": "Tracking {count} {browser} processes",
+        "no_new_processes_detected": "No new {browser} processes detected to track",
+        "could_not_track_processes": "Could not track {browser} processes: {error}"
     },
     "auth": {
         "title": "Cursor Auth Manager",
@@ -411,9 +422,9 @@
         "reset_log_6": "If available, use a VPN to change your IP address",
         "reset_log_7": "Clear your browser cookies and cache before visiting Cursor AI's website",
         "reset_log_8": "If issues persist, try installing Cursor AI in a different location",
-        "reset_log_9": "If you encounter any issues, go to Github Issue Tracker and create an issue at https://github.com/suinian0309/cursorvip/issues",
+        "reset_log_9": "If you encounter any issues, go to Github Issue Tracker and create an issue at https://github.com/yeongpin/cursor-free-vip/issues",
         "unexpected_error": "An unexpected error occurred: {error}",
-        "report_issue": "Please report this issue to Github Issue Tracker at https://github.com/suinian0309/cursorvip/issues",
+        "report_issue": "Please report this issue to Github Issue Tracker at https://github.com/yeongpin/cursor-free-vip/issues",
         "keyboard_interrupt": "Process interrupted by user. Exiting...",
         "return_to_main_menu": "Returning to main menu...",
         "process_interrupted": "Process interrupted. Exiting...",
@@ -555,7 +566,16 @@
         "config_setup_error": "Error setting up config: {error}",
         "storage_file_is_valid_and_contains_data": "Storage file is valid and contains data",
         "error_reading_storage_file": "Error reading storage file: {error}",
-        "also_checked": "Also checked {path}"
+        "also_checked": "Also checked {path}",
+        "backup_created": "Backup created: {path}",
+        "config_removed": "Config file removed for forced update",
+        "backup_failed": "Failed to backup config: {error}",
+        "force_update_failed": "Force update config failed: {error}",
+        "config_force_update_disabled": "Config file force update disabled , skipping forced update",
+        "config_force_update_enabled": "Config file force update enabled , performing forced update",
+        "documents_path_not_found": "Documents path not found, using current directory",
+        "config_dir_created": "Config directory created: {path}",
+        "using_temp_dir": "Using temporary directory due to error: {path} (Error: {error})"
     },
     "oauth": {
         "authentication_button_not_found": "Authentication button not found",
@@ -614,19 +634,27 @@
         "warning_could_not_kill_existing_browser_processes": "Warning: Could not kill existing browser processes: {error}",
         "browser_failed_to_start": "Browser failed to start: {error}",
         "browser_failed": "Browser failed to start: {error}",
-        "browser_failed_to_start_fallback": "Browser failed to start: {error}"
+        "browser_failed_to_start_fallback": "Browser failed to start: {error}",
+        "user_data_dir_not_found": "{browser} user data directory not found at {path}, will try Chrome instead",
+        "error_getting_user_data_directory": "Error getting user data directory: {error}",
+        "warning_browser_close": "Warning: This will close all running {browser} processes",
+        "killing_browser_processes": "Killing {browser} processes...",
+        "profile_selection_error": "Error during profile selection: {error}",
+        "using_configured_browser_path": "Using configured {browser} path: {path}",
+        "browser_not_found_trying_chrome": "Could not find {browser}, trying Chrome instead",
+        "found_chrome_at": "Found Chrome at: {path}",
+        "found_browser_user_data_dir": "Found {browser} user data directory: {path}"
     },
-    "chrome_profile": {
-        "title": "Chrome Profile Selection",
-        "select_profile": "Select a Chrome profile to use:",
-        "profile_list": "Available profiles:",
-        "default_profile": "Default Profile",
+    "browser_profile": {
+        "title": "Browser Profile Selection",
+        "select_profile": "Select {browser} profile to use:",
+        "profile_list": "Available {browser} profiles:",
+        "default_profile": "Default profile",
         "profile": "Profile {number}",
-        "no_profiles": "No Chrome profiles found",
-        "error_loading": "Error loading Chrome profiles: {error}",
+        "no_profiles": "No {browser} profiles found",
+        "error_loading": "Error loading {browser} profiles: {error}",
         "profile_selected": "Selected profile: {profile}",
-        "invalid_selection": "Invalid selection. Please try again",
-        "warning_chrome_close": "Warning: This will close all running Chrome processes"
+        "invalid_selection": "Invalid selection. Please try again."
     },
     "account_delete": {
         "title": "Cursor Google Account Deletion Tool",
@@ -691,5 +719,50 @@
         "title": "Cursor Version Bypass Tool",
         "description": "This tool modifies Cursor's product.json to bypass version restrictions",
         "menu_option": "Bypass Cursor Version Check"
+    },
+    "auth_check": {
+        "checking_authorization": "Checking authorization...",
+        "token_source": "Get token from database or input manually? (d/m, default: d)",
+        "getting_token_from_db": "Getting token from database...",
+        "token_found_in_db": "Token found in database",
+        "token_not_found_in_db": "Token not found in database",
+        "cursor_acc_info_not_found": "cursor_acc_info.py not found",
+        "error_getting_token_from_db": "Error getting token from database: {error}",
+        "enter_token": "Enter your Cursor token: ",
+        "token_length": "Token length: {length} characters",
+        "usage_response_status": "Usage response status: {response}",
+        "unexpected_status_code": "Unexpected status code: {code}",
+        "jwt_token_warning": "Token appears to be in JWT format, but API check returned an unexpected status code. The token might be valid but API access is restricted.",
+        "invalid_token": "Invalid token",
+        "user_authorized": "User is authorized",
+        "user_unauthorized": "User is unauthorized",
+        "request_timeout": "Request timed out",
+        "connection_error": "Connection error",
+        "check_error": "Error checking authorization: {error}",
+        "authorization_successful": "Authorization successful!",
+        "authorization_failed": "Authorization failed!",
+        "operation_cancelled": "Operation cancelled by user",
+        "unexpected_error": "Unexpected error: {error}",
+        "error_generating_checksum": "Error generating checksum: {error}",
+        "checking_usage_information": "Checking usage information...",
+        "check_usage_response": "Check usage response: {response}",
+        "usage_response": "Usage response: {response}"
+    },
+    "bypass_token_limit": {
+        "title": "Bypass Token Limit Tool",
+        "description": "This tool modifies the workbench.desktop.main.js file to bypass the token limit",
+        "press_enter": "Press Enter to continue..."
+    },
+    "token": {
+        "refreshing": "Refreshing token...",
+        "refresh_success": "Token refreshed successfully! Valid for {days} days (expires: {expire})",
+        "no_access_token": "No access token in response",
+        "refresh_failed": "Token refresh failed: {error}",
+        "invalid_response": "Invalid JSON response from refresh server",
+        "server_error": "Refresh server error: HTTP {status}",
+        "request_timeout": "Request to refresh server timed out",
+        "connection_error": "Connection error to refresh server",
+        "unexpected_error": "Unexpected error during token refresh: {error}",
+        "extraction_error": "Error extracting token: {error}"
     }
 }   
