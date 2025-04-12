@@ -1,4 +1,4 @@
-# ➤ Cursorvip
+# ➤ Cursor VIP 工具
 
 <div align="center">
 <p align="center">
@@ -13,63 +13,71 @@
 [![Download](https://img.shields.io/github/downloads/suinian0309/cursorvip/total?style=flat-square&logo=github&color=52c41a1)](https://github.com/suinian0309/cursorvip/releases/latest)
 
 </p>
-<h4>Support Latest 0.48.x Version | 支持最新 0.48.x 版本</h4>
-
-This tool registers accounts with custom emails, support Google and GitHub account registrations, temporary GitHub account registration, kills all Cursor's running processes, resets and wipes Cursor data and hardware info.
-
-Supports Windows, macOS and Linux.
-
-For optimal performance, run with privileges and always stay up to date.
-
-Always clean your browser's cache and cookies. If possible, use a VPN to create new accounts.
-
-
-这是一个自动化工具，自动注册，支持 Windows 和 macOS 系统，完成 Auth 验证，重置 Cursor 的配置。
+<h4>支持最新 Cursor 0.48.x 版本</h4>
 
 <p align="center">
-  <img src="./images/pro_2025-04-05_18-47-56.png" alt="new" width="800" style="border-radius: 6px;"/><br>
+  <img src="./images/pro_2025-04-05_18-47-56.png" alt="界面预览" width="800" style="border-radius: 6px;"/><br>
 </p>
-
-##### If you don't have Google Chrome, you can download it from [here](https://www.google.com/intl/en_pk/chrome/)
-
-##### 如果没有 Google Chrome，可以从[这里](https://www.google.com/intl/en_pk/chrome/)下载
 
 </div>
 
-## 🔄 Change Log | 更新日志
+## 📋 项目简介
 
-[Watch Change Log | 查看更新日志](CHANGELOG.md)
+Cursor VIP 是一个功能强大的 Cursor 编辑器增强工具，提供机器标识重置、账户管理和系统配置等功能。本工具支持 Windows、macOS 和 Linux 系统，为用户提供流畅的 Cursor 使用体验。
 
-## ✨ Features | 功能特點
+为获得最佳性能，请使用管理员/root权限运行，并保持工具版本更新。
 
-* 🌟 Google OAuth Authentication with Lifetime Access<br>使用 Google OAuth 认证（终身访问）<br>
+## 🔄 更新日志
 
-* ⭐ GitHub OAuth Authentication with Lifetime Access<br>使用 GitHub OAuth 认证（终身访问）<br>
+[查看完整更新日志](CHANGELOG.md)
 
-* Automatically register Cursor membership<br>自动注册 Cursor 会员<br>
+## ✨ 核心功能
 
-* Support Windows and macOS systems<br>支持 Windows 和 macOS 系统<br>
+### 账户管理
+* 🔑 **手动注册** - 支持手动注册 Cursor 账户
+* 🗑 **删除 Google 账户** - 安全删除关联的 Cursor Google 账户
 
-* Complete Auth verification<br>完成 Auth 验证<br>
+### 系统维护
+* 🔄 **重置机器标识** - 重置 Cursor 的机器标识信息
+* 🔄 **完全重置** - 彻底清除 Cursor 配置和数据
+* ⛔ **禁用自动更新** - 阻止 Cursor 自动更新
+* 🔄 **绕过版本检查** - 绕过 Cursor 版本限制
 
-* Reset Cursor's configuration<br>重置 Cursor 的配置<br>
+### 实用工具
+* ❌ **退出 Cursor 进程** - 强制结束所有 Cursor 运行进程
+* ⚙️ **配置管理** - 查看和编辑工具配置
+* 🌐 **多语言支持** - 支持英文、简体中文、繁体中文、越南语等
+* ⚙️ **Chrome 配置文件选择** - 灵活选择浏览器配置文件
 
-* Delete Cursor Google Account<br>删除 Cursor Google 账号<br>
+## 💻 系统支持
 
-* Multi-language support (English, 简体中文, 繁體中文, Vietnamese)<br>多语言支持（英文、简体中文、繁体中文、越南语）<br>
+### 支持的操作系统
 
-## 💻 System Support | 系統支持
+| 操作系统 | 架构 | 支持状态 |
+|:----------:|:--------------------:|:----------:|
+| Windows | x64 (64位) | ✅ |
+| Windows | x86 (32位) | ✅ |
+| macOS | Intel | ✅ |
+| macOS | Apple Silicon (M1/M2/M3) | ✅ |
+| Linux | x64 (64位) | ✅ |
+| Linux | x86 (32位) | ✅ |
+| Linux | ARM64 | ✅ |
 
-| Windows |  x64  | ✅ | macOS |     Intel     | ✅ |
-|:-------:|:-----:|:-:|:-----:|:-------------:|:-:|
-| Windows |  x86  | ✅ | macOS | Apple Silicon | ✅ |
-|  Linux  |  x64  | ✅ | Linux |      x86      | ✅ |
-|  Linux  | ARM64 | ✅ | Linux |     ARM64     | ✅ |
+### 支持的 Cursor 版本
 
-## 👀 How to use | 如何使用
+| Cursor 版本 | 支持状态 | 备注 |
+|:-------------:|:----------:|:--------------------:|
+| 0.48.x | ✅ | 完全支持 |
+| 0.47.x | ✅ | 完全支持 |
+| 0.46.x | ✅ | 完全支持 |
+| 0.45.x 及以下 | ✅ | 需要使用绕过版本检查功能 |
+
+## 👀 使用方法
+
+### 快速安装
 
 <details open>
-<summary><b>⭐ Auto Run Script | 脚本自动化运行</b></summary>
+<summary><b>⭐ 一键安装脚本</b></summary>
 
 **Linux/macOS**
 
@@ -85,8 +93,10 @@ irm https://raw.githubusercontent.com/suinian0309/cursorvip/main/scripts/install
 
 </details>
 
+### 快速重置
+
 <details>
-<summary><b>⭐ Manual Reset Machine | 手动运行重置机器</b></summary>
+<summary><b>⭐ 直接重置机器标识</b></summary>
 
 **Linux/macOS**
 
@@ -102,98 +112,85 @@ irm https://raw.githubusercontent.com/suinian0309/cursorvip/main/scripts/reset.p
 
 </details>
 
-If you want to stop the script, please press Ctrl+C<br>要停止脚本，请按 Ctrl+C
+> 提示：要停止正在运行的脚本，请按 Ctrl+C
 
-## ❗ Note | 注意事項
+## ❗ 注意事项
 
-📝 Config | 文件配置
-`Win / Macos / Linux Path | 路径 [Documents/.Cursorvip/config.ini]`
+### 配置文件
+
+配置文件路径：`Documents/.cursor-free-vip/config.ini`
+
 <details>
-<summary><b>⭐ Config | 文件配置</b></summary>
+<summary><b>⭐ 配置文件详情</b></summary>
 
-```
+```ini
 [Chrome]
-# Default Google Chrome Path | 默认Google Chrome 浏览器路径
+# Google Chrome 浏览器路径
 chromepath = C:\Program Files\Google/Chrome/Application/chrome.exe
 
 [Turnstile]
-# Handle Turnstile Wait Time | 等待人机验证时间
+# 人机验证等待时间
 handle_turnstile_time = 2
-# Handle Turnstile Wait Random Time (must merge 1-3 or 1,3) | 等待人机验证随机时间（必须是 1-3 或者 1,3 这样的组合）
+# 人机验证随机等待时间（格式：1-3 或 1,3）
 handle_turnstile_random_time = 1-3
 
 [OSPaths]
-# Storage Path | 存储路径
+# 存储路径
 storage_path = /Users/username/Library/Application Support/Cursor/User/globalStorage/storage.json
-# SQLite Path | SQLite路径
+# SQLite数据库路径
 sqlite_path = /Users/username/Library/Application Support/Cursor/User/globalStorage/state.vscdb
-# Machine ID Path | 机器ID路径
+# 机器ID路径
 machine_id_path = /Users/username/Library/Application Support/Cursor/machineId
-# For Linux users: ~/.config/cursor/machineid
+# Linux用户路径: ~/.config/cursor/machineid
 
 [Timing]
-# Min Random Time | 最小随机时间
+# 时间相关配置
 min_random_time = 0.1
-# Max Random Time | 最大随机时间
 max_random_time = 0.8
-# Page Load Wait | 页面加载等待时间
 page_load_wait = 0.1-0.8
-# Input Wait | 输入等待时间
 input_wait = 0.3-0.8
-# Submit Wait | 提交等待时间
 submit_wait = 0.5-1.5
-# Verification Code Input | 验证码输入等待时间
 verification_code_input = 0.1-0.3
-# Verification Success Wait | 验证成功等待时间
 verification_success_wait = 2-3
-# Verification Retry Wait | 验证重试等待时间
 verification_retry_wait = 2-3
-# Email Check Initial Wait | 邮件检查初始等待时间
 email_check_initial_wait = 4-6
-# Email Refresh Wait | 邮件刷新等待时间
 email_refresh_wait = 2-4
-# Settings Page Load Wait | 设置页面加载等待时间
 settings_page_load_wait = 1-2
-# Failed Retry Time | 失败重试时间
 failed_retry_time = 0.5-1
-# Retry Interval | 重试间隔
 retry_interval = 8-12
-# Max Timeout | 最大超时时间
 max_timeout = 160
 
 [Utils]
-# Check Update | 检查更新
+# 工具设置
 check_update = True
-# Show Account Info | 显示账号信息
 show_account_info = True
 ```
 
 </details>
 
-* Use administrator privileges to run the script <br>请使用管理员身份运行脚本
+### 使用注意事项
 
-* Confirm that Cursor is closed before running the script <br>请确保在运行脚本前已经关闭 Cursor<br>
+* **管理员权限** - 请使用管理员/root权限运行工具
+* **关闭 Cursor** - 运行工具前请先关闭 Cursor 编辑器
+* **仅供学习研究** - 本工具仅供学习和研究使用
+* **遵守条款** - 使用本工具时请遵守相关软件使用条款
 
-* This tool is only for learning and research purposes <br>此工具仅供学习和研究使用<br>
+## 🚨 常见问题
 
-* Please comply with the relevant software usage terms when using this tool <br>使用本工具时请遵守相关软件使用条款
-
-## 🚨 Common Issues | 常見問題
-
-|                   如果遇到权限问题，请确保：                    |                   此脚本以管理员身份运行                    |
+| 问题 | 解决方法 |
 |:--------------------------------------------------:|:------------------------------------------------:|
-| If you encounter permission issues, please ensure: | This script is run with administrator privileges |
-| Error 'User is not authorized' | This means your account was banned for using temporary (disposal) mail. Ensure using a non-temporary mail service |
+| 权限问题 | 请使用管理员/root权限运行工具 |
+| “User is not authorized” 错误 | 账户因使用临时邮箱被禁用，请使用非临时邮箱服务 |
+| Linux路径未找到 | 检查Cursor安装路径或使用root权限运行 |
+| 浏览器启动失败 | 确保已安装Google Chrome并正确配置路径 |
 
+## 📩 免责声明
 
-## 📩 Disclaimer | 免責聲明
+本工具仅供学习和研究使用，使用本工具所产生的任何后果由使用者自行承担。
 
-本工具仅供学习和研究使用，使用本工具所产生的任何后果由使用者自行承担。 <br>
+This tool is only for learning and research purposes, and any consequences arising from the use of this tool are borne by the user.
 
-This tool is only for learning and research purposes, and any consequences arising from the use of this tool are borne
-by the user.
-
-## 💰 Buy Me a Coffee | 请我喝杯咖啡
+## 💰 支持项目
 
 <div align="center">
   <table>
@@ -204,7 +201,7 @@ by the user.
   </table>
 </div>
 
-## ⭐ Star History | 星星数
+## ⭐ 项目统计
 
 <div align="center">
 
@@ -212,11 +209,11 @@ by the user.
 
 </div>
 
-## 📝  | 致谢
+## 📝 致谢
 
-本项部分代码参考 [此项目](https://github.com/yeongpin/cursor-free-vip) 感谢
+本项目部分代码参考 [此项目](https://github.com/yeongpin/cursor-free-vip)，在此表示感谢。
 
-## 📝 License | 授權
+## 📝 许可证
 
-本项目采用 [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/) 授权。
-Please refer to the [LICENSE](LICENSE.md) file for details.
+本项目采用 [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/) 许可证。
+详细信息请参考 [LICENSE](LICENSE.md) 文件。
