@@ -212,7 +212,8 @@ by the user.
 
 </div>
 ## 📝  | 致谢
-本项目部分代码参考[此项目](https://github.com/suinian0309/suinian0309)，表示感谢
+
+本项部分代码参考 [此项目](https://github.com/yeongpin/cursor-free-vip) 感谢
 
 ## 📝 License | 授權
 
