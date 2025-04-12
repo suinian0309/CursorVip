@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 > nul
 echo ===================================
-echo Cursor Free VIP Windows Builder
+echo CursorVIP Windows Builder
 echo ===================================
 
 :: Check Python environment
@@ -32,10 +32,10 @@ echo Building Windows version...
 pyinstaller @build.spec
 
 :: Check build result
-if exist "dist\CursorFreeVIP_%VERSION%_windows.exe" (
+if exist "dist\CursorVIP_%VERSION%_windows.exe" (
     echo ===================================
     echo Build successful!
-    echo Output file: dist\CursorFreeVIP_%VERSION%_windows.exe
+    echo Output file: dist\CursorVIP_%VERSION%_windows.exe
     echo ===================================
 ) else (
     echo Build failed. Please check error messages.

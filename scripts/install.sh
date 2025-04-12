@@ -83,7 +83,7 @@ detect_os() {
 }
 
 # Install and download
-install_cursor_free_vip() {
+install_cursorvip() {
     local downloads_dir=$(get_downloads_dir)
     local binary_name="CursorVIP_${VERSION}_${OS}"
     local binary_path="${downloads_dir}/${binary_name}"
@@ -191,7 +191,7 @@ main() {
     print_logo
     get_latest_version
     detect_os
-    install_cursor_free_vip
+    install_cursorvip
 }
 
 # Run main program
