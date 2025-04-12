@@ -184,15 +184,7 @@ show_account_info = True
 |:--------------------------------------------------:|:------------------------------------------------:|
 | If you encounter permission issues, please ensure: | This script is run with administrator privileges |
 | Error 'User is not authorized' | This means your account was banned for using temporary (disposal) mail. Ensure using a non-temporary mail service |
-## 🤩 Contribution | 貢獻
 
-欢迎提交 Issue 和 Pull Request！
-
-
-<a href="https://github.com/suinian0309/cursorvip/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=suinian0309/cursorvip&preview=true&max=&columns=" />
-</a>
-<br /><br />
 
 ## 📩 Disclaimer | 免責聲明
 
@@ -219,6 +211,8 @@ by the user.
 [![Star History Chart](https://api.star-history.com/svg?repos=suinian0309/cursorvip&type=Date)](https://star-history.com/#suinian0309/cursorvip&Date)
 
 </div>
+## 📝  | 致谢
+本项目部分代码参考[此项目](https://github.com/yeongpin/cursor-free-vip)，表示感谢
 
 ## 📝 License | 授權
 
